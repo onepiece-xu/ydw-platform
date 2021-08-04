@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbClustersMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbClusters">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="is_local" property="isLocal" />
+        <result column="description" property="description" />
+        <result column="api_url" property="apiUrl" />
+        <result column="access_ip" property="accessIp" />
+        <result column="access_port" property="accessPort" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="sch_status" property="schStatus" />
+        <result column="device_num" property="deviceNum" />
+        <result column="valid" property="valid" />
+        <result column="inner_ip" property="innerIp" />
+    </resultMap>
+    <resultMap id="getClustersVO" type="com.ydw.user.model.vo.CreateClusterVO"></resultMap>
+    <resultMap id="ClusterStatusVO" type="com.ydw.user.model.vo.ClusterStatusVO"></resultMap>
+    <select id="getClusters" resultMap="getClustersVO">
+SELECT
+	*
+FROM
+	tb_clusters
+WHERE
+	valid = TRUE
+        <if test="name!=null">
+            and `name` =#{name}
+        </if>
+        <if test="type!=null">
+            and `type`=#{type}
+        </if>
+
+        <if test="isLocal!=null">
+            and is_local=#{isLocal}
+        </if>
+
+        <if test="description!=null">
+            and description=#{description}
+        </if>
+
+        <if test="apiUrl!=null">
+            and api_url=#{apiUrl}
+        </if>
+
+        <if test="accessIp!=null">
+            and access_ip=#{accessIp}
+        </if>
+        <if test="schStatus!=null">
+            and schStatus=#{schStatus}
+        </if>
+        <if test="search!=null">
+            and (`name` LIKE CONCAT('%', #{search}, '%') or  access_ip LIKE CONCAT('%', #{search}, '%'))
+        </if>
+ORDER BY
+	create_time DESC
+    </select>
+
+    <select id="getAllClusters" resultMap="BaseResultMap">
+    SELECT
+	*
+    FROM
+	tb_clusters tc
+    WHERE
+	tc.valid = TRUE;
+
+    </select>
+
+    <select id="getClusterStatus" resultMap="ClusterStatusVO">
+    SELECT
+	A.*,
+	B.*
+FROM
+	(
+	SELECT
+		count(*) AS idleCount
+	FROM
+		tb_devices td,
+		tb_device_base tdb
+	WHERE
+		td.base_id = tdb.id
+		AND td.sch_status = 1
+		AND td.`status` = 1
+		AND tdb.type = 1
+		AND td.cluster_id = #{id}
+	) A,
+	(
+	SELECT
+		count(*) AS totalCount
+	FROM
+		tb_devices td,
+		tb_device_base tdb
+	WHERE
+		td.base_id = tdb.id
+		AND td.sch_status = 1
+		AND tdb.type = 1
+	AND td.cluster_id = #{id}
+	)B
+    </select>
+</mapper>

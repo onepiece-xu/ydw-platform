@@ -1,0 +1,43 @@
+server:
+  port: 8089
+  servlet:
+    context-path: /cgp-edge
+#
+#spring:
+#  application:
+#    name: cgp-paas-edge
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: 192.168.1.201:8848 # 将gateway注册到nacos
+#        #本服务外网ip
+#        #ip: xxx.xxx.xxx.xxx
+#        #本服务外网端口
+#        #port: xxxx
+#
+#feign:
+#  httpclient:
+#    enabled: false
+#  okhttp:
+#    enabled: true
+#  hystrix:
+#    enabled: true
+        
+#日志
+logging:
+  level:
+    com.ydw.edge: debug
+
+#中心节点api域名或者ip+port
+centre:
+  domain: http://192.168.1.25:9000
+
+#本节点id
+clusterid: 6669044782541807389
+
+#ftp配置
+ftp:
+  address: 192.168.1.201
+  port: 21
+  userName: ydw
+  passWord: Yidianwan!23

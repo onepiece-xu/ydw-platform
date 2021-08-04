@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.AppPictureMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.AppPicture">
+        <id column="id" property="id" />
+        <result column="app_id" property="appId" />
+        <result column="picture_url" property="pictureUrl" />
+        <result column="type" property="type" />
+    </resultMap>
+    <resultMap id="AppPictureVO" type="com.ydw.platform.model.vo.AppPictureVO"></resultMap>
+    <select id="getByAppId" resultMap="AppPictureVO">
+        SELECT type,picture_url From app_picture where  app_id=#{appId}
+     </select>
+</mapper>

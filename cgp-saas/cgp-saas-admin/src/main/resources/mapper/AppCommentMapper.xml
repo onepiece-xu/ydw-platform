@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.AppCommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.AppComment">
+        <id column="id" property="id" />
+        <result column="app_id" property="appId" />
+        <result column="owner_id" property="ownerId" />
+        <result column="comment" property="comment" />
+        <result column="thumb" property="thumb" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="liked" property="liked" />
+        <result column="reported" property="reported" />
+        <result column="approved" property="approved" />
+    </resultMap>
+    <resultMap id="AppCommentListVO" type="com.ydw.admin.model.vo.AppCommentListVO"></resultMap>
+
+    <select id="getAppCommentList" resultMap="AppCommentListVO">
+        SELECT
+        ac.id,
+        ac.app_id,
+        ac.owner_id,
+        ac.COMMENT,
+        ac.create_time,
+        ac.reported,
+        ui.mobile_number,
+        a.NAME AS appName,
+        ui.nickname AS nickName,
+        ac.approved
+        FROM
+        app_comment ac,
+        user_info ui,
+        app a
+        WHERE
+        a.id = ac.app_id
+        AND ui.id = ac.owner_id
+        AND ac.STATUS = 1
+        <if test="reported != null">
+            and ac.reported = #{reported}
+        </if>
+        <if test="search != null">
+        and ui.mobile_number like concat('%',#{search},'%')
+        </if>
+        ORDER BY
+        ac.create_time DESC
+    </select>
+
+</mapper>

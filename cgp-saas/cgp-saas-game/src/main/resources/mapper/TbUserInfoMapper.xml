@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.game.dao.TbUserInfoMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.ydw.game.model.db.TbUserInfo">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="nickname" jdbcType="VARCHAR" property="nickname" />
+		<result column="mobile_number" jdbcType="VARCHAR" property="mobileNumber" />
+		<result column="user_email" jdbcType="VARCHAR" property="userEmail" />
+		<result column="user_point" jdbcType="INTEGER" property="userPoint" />
+		<result column="user_level" jdbcType="INTEGER" property="userLevel" />
+		<result column="user_balance" property="userBalance" />
+		<result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+		<result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+		<result column="avatar" jdbcType="VARCHAR" property="avatar" />
+		<result column="login_time" jdbcType="TIMESTAMP" property="loginTime" />
+		<result column="password" jdbcType="VARCHAR" property="password" />
+		<result column="account_status" jdbcType="VARCHAR" property="accountStatus" />
+		<result column="onilne_status" jdbcType="BIT" property="onilneStatus" />
+		<result column="wechat" jdbcType="VARCHAR" property="wechat" />
+		<result column="qq_number" jdbcType="VARCHAR" property="qqNumber" />
+		<result column="gender" jdbcType="VARCHAR" property="gender" />
+		<result column="recommender" jdbcType="VARCHAR" property="recommender" />
+		<result column="wechat_open_id" jdbcType="VARCHAR" property="wechatOpenId" />
+	</resultMap>
+
+    <resultMap id="RoleResultMap" type="com.ydw.game.model.vo.TbRoleUser">
+        <id column="id" property="id" />
+        <result column="role_id" property="roleId" />
+        <result column="user_id" property="userId" />
+    </resultMap>
+
+
+	<insert id="insertSelective" parameterType="com.ydw.game.model.db.TbUserInfo">
+		INSERT INTO tb_user_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="nickname != null">
+				nickname,
+			</if>
+			<if test="mobileNumber != null">
+				mobile_number,
+			</if>
+			<if test="userEmail != null">
+				user_email,
+			</if>
+			<if test="userPoint != null">
+				user_point,
+			</if>
+			<if test="userLevel != null">
+				user_level,
+			</if>
+			<if test="userBalance != null">
+				user_balance,
+			</if>
+			<if test="registerTime != null">
+				register_time,
+			</if>
+			<if test="modifiedTime != null">
+				modified_time,
+			</if>
+			<if test="avatar != null">
+				avatar,
+			</if>
+			<if test="loginTime != null">
+				login_time,
+			</if>
+			<if test="password != null">
+				`password`,
+			</if>
+			<if test="accountStatus != null">
+				account_status,
+			</if>
+			<if test="onilneStatus != null">
+				onilne_status,
+			</if>
+			<if test="wechat != null">
+				wechat,
+			</if>
+			<if test="qqNumber != null">
+				qq_number,
+			</if>
+			<if test="gender != null">
+				gender,
+			</if>
+			<if test="recommender != null">
+				recommender,
+			</if>
+			<if test="wechatOpenId != null">
+                wechat_open_id,
+            </if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="nickname != null">
+				#{nickname,jdbcType=VARCHAR},
+			</if>
+			<if test="mobileNumber != null">
+				#{mobileNumber,jdbcType=VARCHAR},
+			</if>
+			<if test="userEmail != null">
+				#{userEmail,jdbcType=VARCHAR},
+			</if>
+			<if test="userPoint != null">
+				#{userPoint,jdbcType=INTEGER},
+			</if>
+			<if test="userLevel != null">
+				#{userLevel,jdbcType=INTEGER},
+			</if>
+			<if test="userBalance != null">
+				#{userBalance},
+			</if>
+			<if test="registerTime != null">
+				#{registerTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifiedTime != null">
+				#{modifiedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="avatar != null">
+				#{avatar,jdbcType=VARCHAR},
+			</if>
+			<if test="loginTime != null">
+				#{loginTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="accountStatus != null">
+				#{accountStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="onilneStatus != null">
+				#{onilneStatus,jdbcType=BIT},
+			</if>
+			<if test="wechat != null">
+				#{wechat,jdbcType=VARCHAR},
+			</if>
+			<if test="qqNumber != null">
+				#{qqNumber,jdbcType=VARCHAR},
+			</if>
+			<if test="gender != null">
+				#{gender,jdbcType=VARCHAR},
+			</if>
+			<if test="recommender != null">
+				#{recommender,jdbcType=VARCHAR},
+			</if>
+			<if test="wechatOpenId != null">
+                #{wechatOpenId,jdbcType=VARCHAR},
+            </if>
+		</trim>
+	</insert>
+
+	<select id="selectCountByMobileNumber" resultType="java.lang.Integer">
+		SELECT
+		count(*) FROM tb_user_info WHERE BINARY mobile_number=
+		#{mobileNumber,jdbcType=VARCHAR}
+		AND account_status='0'
+	</select>
+
+	<select id="selectStatusByMobileNumber" resultType="java.lang.String">
+		SELECT
+		account_status FROM tb_user_info WHERE BINARY mobile_number=
+		#{mobileNumber,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectByMobileNumber" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT * FROM tb_user_info WHERE BINARY mobile_number=
+		#{mobileNumber,jdbcType=VARCHAR} AND account_status='0'
+
+	</select>
+	
+	<select id="selectByMobileNumberFreeze" parameterType="java.lang.String"
+        resultMap="BaseResultMap">
+        SELECT * FROM tb_user_info WHERE BINARY mobile_number=
+        #{mobileNumber,jdbcType=VARCHAR} AND account_status='1'
+
+    </select>
+
+
+	<select id="selectByInfoId" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT * FROM tb_user_info WHERE BINARY id=
+		#{id,jdbcType=VARCHAR}
+	</select>
+    
+    <select id="selectByOpenId" parameterType="java.lang.String"
+        resultMap="BaseResultMap">
+        SELECT * FROM tb_user_info WHERE BINARY wechat_open_id=
+        #{id,jdbcType=VARCHAR}
+    </select>
+    
+	<update id="updateSelective" parameterType="com.ydw.game.model.db.TbUserInfo">
+		UPDATE tb_user_info
+		<set>
+			<if test="nickname != null">
+				nickname=#{nickname,jdbcType=VARCHAR},
+			</if>
+			<if test="mobileNumber != null">
+				mobile_number=#{mobileNumber,jdbcType=VARCHAR},
+			</if>
+
+			<if test="userPoint != null">
+				user_point= #{userPoint,jdbcType=INTEGER},
+			</if>
+			<if test="userLevel != null">
+				user_level= #{userLevel,jdbcType=INTEGER},
+			</if>
+			<if test="userBalance != null">
+				user_balance=#{userBalance},
+			</if>
+			<if test="registerTime != null">
+				register_time=#{registerTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifiedTime != null">
+				modified_time= #{modifiedTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="avatar != null">
+				avatar= #{avatar,jdbcType=VARCHAR},
+			</if>
+			<if test="loginTime != null">
+				login_time=#{loginTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="password != null">
+				`password`= #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="accountStatus != null">
+				account_status= #{accountStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="onilneStatus != null">
+				onilne_status= #{onilneStatus,jdbcType=BIT},
+			</if>
+			user_email= #{userEmail,jdbcType=VARCHAR},
+			wechat=	#{wechat,jdbcType=VARCHAR},
+			qq_number= #{qqNumber,jdbcType=VARCHAR},
+
+			<if test="gender != null">
+				gender= #{gender,jdbcType=VARCHAR},
+			</if>
+			<if test="recommender != null">
+				recommender= #{recommender,jdbcType=VARCHAR},
+			</if>
+			<if test="wechatOpenId != null">
+                wechat_open_id= #{wechatOpenId,jdbcType=VARCHAR},
+            </if>
+		</set>
+		where id=#{id,jdbcType=VARCHAR}
+
+	</update>
+
+	<update id="updateContact" parameterType="com.ydw.game.model.db.TbUserInfo">
+		UPDATE tb_user_info
+		<set>
+			<if test="qqNumber != null">
+				qq_number=#{qqNumber,jdbcType=VARCHAR},
+			</if>
+			<if test="wechat != null">
+				wechat=#{wechat,jdbcType=VARCHAR},
+			</if>
+			<if test="userEmail != null">
+				user_email=#{userEmail,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id=#{id,jdbcType=VARCHAR}
+	</update>
+	
+	<select id="getUserList" 
+        resultMap="BaseResultMap">
+        SELECT * FROM tb_user_info 
+        WHERE 
+        id!=''
+        <if test="nickname!=null">
+        and nickname=#{nickname}
+        </if>
+        <if test="mobileNumber!=null">
+        and mobile_number=#{mobileNumber}
+        </if>
+        <if test="userLevel!=null">
+        and user_level=#{userLevel}
+        </if>
+        <if test="onlineStatus!=null">
+        and onilne_status=#{onlineStatus}
+        </if>
+        <if test="accountStatus!=null">
+        and account_status=#{accountStatus}
+        </if>
+        <if test="registerTime!=null">
+        and  DATE_FORMAT(register_time,'%Y-%m-%d') =#{registerTime}
+        </if>
+        ORDER BY login_time DESC
+    </select>
+    
+    <select id="getAllIds" resultType="java.lang.String">
+        SELECT id from tb_user_info  
+        WHERE  account_status=0;
+    </select>
+
+    <select id="getRoleIdByUserId" resultMap="RoleResultMap">
+	SELECT tru.* FROM tb_user_info tui INNER JOIN tb_role_user
+	tru on
+	tui.id= tru.user_id
+	AND tui.id=#{id}
+</select>    
+
+</mapper>

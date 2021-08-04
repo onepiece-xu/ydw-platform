@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.DailyReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.DailyReport">
+        <id column="id" property="id" />
+        <result column="date_time" property="dateTime" />
+        <result column="new_register_count" property="newRegisterCount" />
+        <result column="total_user_count" property="totalUserCount" />
+        <result column="total_payment" property="totalPayment" />
+        <result column="user_payment_count" property="userPaymentCount" />
+        <result column="new_user_payment" property="newUserPayment" />
+        <result column="new_payment_count" property="newPaymentCount" />
+        <result column="total_login" property="totalLogin" />
+        <result column="total_connect" property="totalConnect" />
+    </resultMap>
+    <resultMap id="NewRegisterCountVO" type="com.ydw.admin.model.vo.NewRegisterCountVO"></resultMap>
+    <resultMap id="DailyReportVO" type="com.ydw.admin.model.vo.DailyReportVO"></resultMap>
+    <select id="getNewRegisterCount" resultType="Integer">
+        SELECT  count(ui.id) FROM user_info  ui
+        WHERE ui.mobile_number IS TRUE and  ui.register_time &gt; #{startTime} and ui.register_time &lt; #{endTime}
+    </select>
+    <select id="getRetainedCount"  resultType="Integer">
+        SELECT
+        count( DISTINCT ll.user_id )
+        FROM
+        login_log ll
+        WHERE
+        ll.login_time &gt;  #{startTimeYesterday} and ll.login_time  &lt; #{endTimeYesterday}  and ll.user_id in (
+        SELECT  ui.id FROM user_info  ui
+        WHERE  ui.mobile_number IS TRUE  and ui.register_time &gt;  #{startTime} and ui.register_time  &lt; #{endTime}  )
+
+    </select>
+
+    <select id="getTotalUserCount" resultType="Integer">
+        SELECT count( id ) FROM user_info ui WHERE ui.mobile_number IS TRUE and ui.register_time &lt;= #{endTime} and ui.status = 0
+    </select>
+    <select id="getTotalPayment" resultType="decimal">
+        SELECT
+        sum(tr.final_cost)
+        FROM
+        tb_recharge tr
+        WHERE
+        tr.status = 1
+        and
+        tr.create_time &gt;  #{startTime}
+        AND tr.create_time &lt; #{endTime}
+
+    </select>
+    <select id="getUserPaymentCount" resultType="Integer">
+        SELECT
+        count(DISTINCT tr.account)
+        FROM
+        tb_recharge tr
+        WHERE
+        status = 1  and
+        tr.create_time &gt;  #{startTime}
+        AND tr.create_time &lt; #{endTime}
+
+    </select>
+    <select id="getNewUserPayment" resultType="decimal">
+        SELECT sum( tr.final_cost ) FROM tb_recharge tr WHERE tr.status = 1 and tr.create_time &gt;  #{startTime}
+        AND tr.create_time  &lt; #{endTime}
+        AND tr.account IN (
+        SELECT
+        ui.id
+        FROM
+        user_info ui
+        WHERE
+        ui.register_time &gt;  #{startTime}  and  ui.register_time  &lt; #{endTime} and ui.mobile_number is true
+        )
+    </select>
+
+    <select id="getNewPaymentCount" resultType="Integer">
+    SELECT
+        count( DISTINCT tr.account)
+        FROM
+        tb_recharge tr
+        WHERE
+        tr.status = 1  and
+        tr.create_time &gt;  #{startTime}
+        AND tr.create_time  &lt; #{endTime}
+
+        AND tr.account IN
+        (SELECT ui.id FROM user_info ui WHERE ui.register_time &gt;  #{startTime}
+        AND ui.register_time  &lt; #{endTime}
+        )
+    </select>
+    <select id="getTotalLogin" resultType="Integer">
+        SELECT
+        count(  DISTINCT ll.user_id )
+        FROM
+        login_log ll
+        WHERE
+        ll.login_time  &gt;  #{startTime} and ll.login_time  &lt; #{endTime}
+    </select>
+    <select id="getTotalConnect" resultType="Integer">
+	SELECT
+			count( DISTINCT user_id )
+	FROM
+			tb_connect tc
+	WHERE
+		(tc.begin_time BETWEEN #{startTime} AND  #{endTime} )
+	OR (tc.end_time BETWEEN #{startTime} AND  #{endTime} )
+	OR (tc.begin_time &lt; #{startTime} AND tc.end_time &gt; #{endTime})
+	AND tc.user_Id IN ( SELECT id FROM user_info ui WHERE mobile_number IS TRUE )
+    </select>
+
+
+    <select id="getNewRegisterPayment" resultMap="DailyReportVO">
+        SELECT  t.date_time ,t.new_user_payment from
+        daily_report t WHERE t.date_time &gt;=  #{startTime} and  t.date_time &lt;= #{endTime}
+    </select>
+    <select id="getUserTotalPayment" resultMap="DailyReportVO">
+       SELECT t.date_time ,t.total_payment from daily_report t WHERE t.date_time &gt;=  #{startTime} and  t.date_time &lt;= #{endTime}
+       order by t.date_time desc
+    </select>
+
+    <select id="getDayRegisteredUserPayment" resultType="decimal">
+        SELECT sum( tr.final_cost ) FROM tb_recharge tr WHERE   tr.status = 1 and tr.create_time &gt; #{startTime}
+        AND tr.create_time &lt; #{endTime}
+        AND tr.account IN (
+        SELECT
+        ui.id
+        FROM
+        user_info ui
+        WHERE
+        ui.register_time &lt; #{startTime}
+        )
+
+    </select>
+    <select id="getRegisteredUserPayment" resultMap="DailyReportVO">
+        SELECT t.date_time , (t.total_payment-t.new_user_payment)as registeredUserPayment from daily_report t WHERE t.date_time &gt;=  #{startTime} and  t.date_time &lt;= #{endTime}
+    </select>
+    <select id="getDayNewUserPaymentRate" resultType="decimal">
+        SELECT
+        CAST( count( DISTINCT tr.account ) AS DECIMAL ) /(
+        SELECT
+        CAST( count( ui.id ) AS DECIMAL ) as newUserPaymetRate
+        FROM
+        user_info ui
+        WHERE
+        ui.register_time &gt; #{startTime}
+        AND ui.register_time &lt;  #{endTime} ) FROM tb_recharge tr WHERE  tr.status = 1 and tr.create_time &gt; #{startTime}
+        AND tr.create_time &lt; #{endTime} AND tr.account IN ( SELECT ui.id FROM user_info ui WHERE ui.register_time &gt; #{startTime}
+        AND ui.register_time &lt; #{endTime}
+        )
+    </select>
+
+    <select id="getNewUserPaymentRate" resultMap="DailyReportVO">
+        SELECT t.date_time , (t.new_payment_count/t.new_register_count)as newUserPaymentRate  from daily_report t WHERE t.date_time &gt;=  #{startTime} and  t.date_time &lt;=  #{endTime}
+    </select>
+
+    <select id="getDayUserTotalPaymentRate" resultType="decimal">
+        SELECT
+        count( DISTINCT tr.account )/(
+        SELECT
+        count( DISTINCT ll.user_id )
+        FROM
+        login_log ll
+        WHERE
+        ll.login_time &lt; #{endTime} AND ll.login_time  &gt;  #{startTime}
+        )  as userTotalPaymentRate
+        FROM
+        tb_recharge tr
+        WHERE
+         tr.status = 1 and
+        tr.create_time  &gt;  #{startTime}
+        AND tr.create_time &lt;  #{endTime}
+    </select>
+
+    <select id="getUserTotalPaymentRate" resultMap="DailyReportVO">
+        SELECT t.date_time , (t.user_payment_count/t.total_login)as userTotalPaymentRate  from daily_report t WHERE t.date_time &gt;=  #{startTime} and  t.date_time &lt;=  #{endTime}   order by t.date_time desc
+    </select>
+
+    <select id="getDayActivityRate" resultType="decimal">
+    SELECT count( DISTINCT user_id )/( SELECT count( id ) FROM user_info ui WHERE mobile_number IS TRUE )
+        FROM
+        tb_connect tc
+        WHERE
+        ( tc.begin_time BETWEEN #{startTime} AND  #{endTime} )
+        OR ( tc.end_time BETWEEN #{startTime} AND  #{endTime} )
+        OR ( tc.begin_time &lt; #{startTime} AND tc.end_time &gt; #{endTime} )
+        AND tc.user_Id IN (
+        SELECT
+        id
+        FROM
+        user_info ui
+        WHERE
+        mobile_number IS TRUE
+        )
+    </select>
+    <select id="getActivityRate" resultMap="DailyReportVO">
+        SELECT t.date_time , (t.total_connect/t.total_user_count)as activityRate  from daily_report t WHERE t.date_time &gt;=  #{startTime} and  t.date_time &lt;=  #{endTime}
+    </select>
+    <select id="getDailyNewRegisterCount" resultMap="NewRegisterCountVO">
+        SELECT t.date_time, t.new_register_count ,t.total_user_count from daily_report t
+        WHERE  t.date_time &gt;=  #{startTime} and  t.date_time &lt;=  #{endTime} order  by t.date_time desc
+    </select>
+    <resultMap id="RetainedRateVO" type="com.ydw.admin.model.vo.RetainedRateVO"></resultMap>
+    <select id="getRetainedInfo" resultMap="RetainedRateVO">
+    SELECT ndr.date_time as dateTime,ndr.rate as nextdayRate ,tdr.rate as threedayRate ,sdr.rate as sevendayRate,
+    fdr.rate  as fifteenRate,tydr.rate as thirtyRate from next_day_retained ndr LEFT JOIN  three_day_retained tdr on   ndr.date_time= tdr.date_time  LEFT JOIN seven_day_retained sdr on  sdr.date_time = ndr.date_time  LEFT JOIN fifteen_day_retained fdr  on fdr.date_time = ndr.date_time LEFT JOIN  thirty_day_retained tydr  on tydr.date_time =ndr.date_time
+    WHERE  ndr.date_time  &gt;=  #{startTime} and   ndr.date_time &lt;=  #{endTime} order  by ndr.date_time desc
+    </select>
+
+    <select id="generatePeriodActivity" resultType="Integer">
+        SELECT
+        count(DISTINCT(user_Id))
+        FROM
+        tb_connect t
+        WHERE
+        ( t.begin_time >= #{startTime} AND t.end_time&lt; #{endTime} )
+        OR ( t.begin_time &lt;= #{startTime} AND t.end_time BETWEEN #{startTime} AND  #{endTime} )
+        OR ( t.end_time >  #{endTime} AND t.begin_time BETWEEN #{startTime} AND  #{endTime} )
+        OR (
+        t.end_time >  #{endTime}
+        AND t.begin_time&lt;= #{startTime}
+        )
+    </select>
+    <select id="getOnlineUserCount" resultType="Integer">
+        SELECT
+        count(a.id)
+        FROM
+        app a,
+        tb_connect t,
+        user_info ui
+        WHERE
+        ui.id = t.user_id
+        AND t.app_id = a.id
+        AND t.end_time IS NOT TRUE
+    </select>
+
+    <select id="getPeriodClick" resultType="Integer">
+        SELECT count( DISTINCT user_Id )FROM user_click uc WHERE
+        uc.create_time  &gt;=  #{startTime} and uc.create_time &lt;=  #{endTime}
+    </select>
+</mapper>

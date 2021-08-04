@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.GameGroupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.GameGroup">
+        <id column="id" property="id"/>
+        <result column="gamegroup_id" property="gamegroupId"/>
+        <result column="game_id" property="gameId"/>
+        <result column="game_order" property="gameOrder"/>
+        <result column="weight1" property="weight1"/>
+        <result column="weight2" property="weight2"/>
+        <result column="weight3" property="weight3"/>
+    </resultMap>
+    <resultMap id="AppTagVO" type="com.ydw.platform.model.vo.AppTagVO"></resultMap>
+
+    <resultMap id="GameGroupAppVO" type="com.ydw.platform.model.vo.GameGroupAppVO">
+
+    </resultMap>
+
+    <resultMap id="appVO" type="com.ydw.platform.model.vo.AppVO"></resultMap>
+
+    <resultMap id="GameListsVO" type="com.ydw.platform.model.vo.GameListsVO"></resultMap>
+    <resultMap id="RecommendListVO" type="com.ydw.platform.model.vo.RecommendListVO"></resultMap>
+    <resultMap id="GameGroupListsVO" type="com.ydw.platform.model.vo.GameGroupListsVO"></resultMap>
+    <resultMap id="NewGamesVO" type="com.ydw.platform.model.vo.NewGamesVO"></resultMap>
+
+
+    <resultMap id="AppsConnectionsVO" type="com.ydw.platform.model.vo.AppsConnectionsVO">
+        <result column="app_name" property="appName"/>
+        <result column="app_id" property="appId"/>
+        <result column="count" property="count"/>
+    </resultMap>
+    <select id="getAppsByGameGroupId" resultMap="GameGroupAppVO">
+        SELECT
+        tgg.id as id,
+	tgg.game_order AS gameOrder,
+	tgg.weight1 ,
+	tgg.weight2 ,
+	tgg.weight3 ,
+	tua.id AS appId,
+	tua.NAME AS appName,
+	tua.description AS description
+        from game_group tgg ,app tua   WHERE  tua.valid =1 and  tua.id = tgg.game_id and  tgg.gamegroup_id=  #{id}  ORDER BY tgg.game_order ASC
+    </select>
+
+    <select id="getGameGroupLists" resultMap="GameGroupListsVO">
+         SELECT
+	A.*,
+	B.tag
+FROM
+	(
+	SELECT
+		tgg.game_order AS gameOrder,
+		tgg.weight1,
+		tgg.weight2,
+		tgg.weight3,
+		tua.id AS appId,
+		tua.NAME AS appName,
+		tua.description AS description,
+		tua.type,
+		tua.free,
+		tua.platform,
+		ap.big_pic,
+		ap.logo_pic,
+		ap.mid_pic,
+		ap.small_pic
+	FROM
+		game_group tgg,
+		app tua,
+		app_pictures ap
+	WHERE
+		ap.app_id = tua.id
+		AND tua.valid = 1
+		AND tua.id = tgg.game_id
+		AND tgg.gamegroup_id = #{id}
+	ORDER BY
+		tgg.game_order ASC
+	) A,
+	(
+	SELECT
+		a.id,
+		group_concat( t.tag_name ) AS tag
+	FROM
+		app a,
+		app_tag AT,
+		tag t
+	WHERE
+		t.id = AT.tag_id
+		AND a.id = AT.app_id
+		AND t.id = AT.tag_id
+		and t.valid =1
+	GROUP BY
+		app_id
+	) B
+WHERE
+	B.id = A.appId
+  	ORDER BY A.gameOrder ASC
+    </select>
+
+    <select id="getRecommendList" resultMap="RecommendListVO">
+   SELECT
+	A.*,
+	B.tag
+FROM
+	(
+	SELECT
+		tgg.game_order AS gameOrder,
+		tgg.weight1,
+		tgg.weight2,
+		tgg.weight3,
+		tua.id AS appId,
+		tua.NAME AS appName,
+		tua.description AS description,
+		tua.type,
+		tua.free,
+		tua.platform,
+		ap.big_pic,
+		ap.logo_pic,
+		ap.mid_pic,
+		ap.small_pic
+	FROM
+		game_group tgg,
+		app tua,
+		app_pictures ap
+	WHERE
+		ap.app_id = tua.id
+		AND tua.valid = 1
+		AND tua.id = tgg.game_id
+		AND tgg.gamegroup_id = #{id}
+	ORDER BY
+		tgg.game_order ASC
+	) A,
+	(
+	SELECT
+		a.id,
+		group_concat( t.tag_name ) AS tag
+	FROM
+		app a,
+		app_tag AT,
+		tag t
+	WHERE
+		t.id = AT.tag_id
+		AND a.id = AT.app_id
+		AND t.id = AT.tag_id
+		and t.valid =1
+	GROUP BY
+		app_id
+	) B
+WHERE
+	B.id = A.appId
+	ORDER BY A.gameOrder ASC
+    </select>
+    <resultMap id="RecommendAppVO" type="com.ydw.platform.model.vo.RecommendAppVO"></resultMap>
+    <select id="getRecommendApps" resultMap="RecommendAppVO">
+		SELECT
+	A.*,
+	B.tag
+FROM
+	(
+	SELECT
+		tgg.game_order AS gameOrder,
+		tgg.weight1,
+		tgg.weight2,
+		tgg.weight3,
+		tua.id AS appId,
+		tua.NAME AS appName,
+		tua.description AS description,
+		tua.type,
+		tua.free,
+		tua.platform,tua.point
+	FROM
+		game_group tgg,
+		app tua
+	WHERE
+		tua.valid = 1
+		AND tua.id = tgg.game_id
+		AND tgg.gamegroup_id = #{id}
+	ORDER BY
+		tgg.game_order ASC
+	) A,
+	(
+	SELECT
+		a.id,
+		group_concat( t.tag_name ) AS tag
+	FROM
+		app a,
+		app_tag AT,
+		tag t
+	WHERE
+		t.id = AT.tag_id
+		AND a.id = AT.app_id
+		AND t.id = AT.tag_id
+		AND t.valid = 1
+	GROUP BY
+		app_id
+	) B
+WHERE
+	B.id = A.appId
+ORDER BY
+	A.gameOrder ASC
+	</select>
+
+
+    <select id="getGameList" resultMap="appVO">
+    SELECT  tua.id AS appId,
+	tua.NAME AS appName
+	FROM app tua
+    </select>
+
+    <resultMap id="NewGameVOAndorid" type="com.ydw.platform.model.vo.NewGameVOAndorid"></resultMap>
+
+    <select id="getNewGameList" resultMap="NewGameVOAndorid">
+	SELECT
+	A.*,
+	B.tag
+FROM
+	(
+	SELECT
+		tua.id AS appId,
+		tua.create_time AS createTime,
+		tua.NAME AS appName,
+		tua.description AS description,
+		tua.type,
+		ap.logo_pic,
+		ap.mid_pic,
+		ap.small_pic,
+		ap.big_pic
+	FROM
+		app tua LEFT JOIN
+		app_pictures ap
+	on
+		 ap.app_id = tua.id
+	AND	 tua.valid = 1
+
+	ORDER BY
+		tua.create_time DESC
+		LIMIT 5
+	) A
+	LEFT JOIN (
+	SELECT
+		a.id,
+		group_concat( t.tag_name ) AS tag
+	FROM
+		app a,
+		app_tag AT,
+		tag t
+	WHERE
+		t.id = AT.tag_id
+		AND a.id = AT.app_id
+		AND t.id = AT.tag_id
+		AND t.valid = 1
+	GROUP BY
+		app_id
+	) B ON B.id = A.appId
+
+
+    </select>
+    <select id="newGameList" resultMap="NewGamesVO">
+SELECT
+	tua.id AS appId,
+	tua.create_time AS createTime,
+	tua.NAME AS appName,
+	tua.description AS description ,
+	tua.type,
+	ap.logo_pic,
+	ap.mid_pic,
+	ap.small_pic,
+	ap.big_pic
+FROM
+	app tua ,app_pictures ap
+
+WHERE
+	tua.valid = 1
+	and
+	ap.app_id=tua.id
+ORDER BY
+	tua.create_time DESC
+	LIMIT 5
+      </select>
+    <select id="getAppIdsByGameGroupId" resultMap="BaseResultMap">
+      SELECT * from game_group tgg  WHERE  tgg.gamegroup_id= #{id}  ORDER BY tgg.game_order ASC
+    </select>
+
+    <select id="getByGameGroupId" resultMap="BaseResultMap">
+        	   select  *from   game_group where gamegroup_id = #{id}
+    </select>
+    <resultMap id="NewAppsVO" type="com.ydw.platform.model.vo.NewAppsVO"></resultMap>
+    <select id="getNewApps" resultMap="NewAppsVO">
+SELECT
+	tua.id AS appId,
+	tua.create_time AS createTime,
+	tua.NAME AS appName,
+	tua.description AS description,
+	tua.type,tua.point,
+	B.tag
+FROM
+	app tua
+	LEFT JOIN (
+	SELECT
+		a.id,
+		group_concat( t.tag_name ) AS tag
+	FROM
+		app a,
+		app_tag AT,
+		tag t
+	WHERE
+		t.id = AT.tag_id
+		AND a.id = AT.app_id
+		AND t.id = AT.tag_id
+		AND t.valid = 1
+	GROUP BY
+		app_id
+	) B ON tua.id = B.id
+WHERE
+	tua.valid = 1
+ORDER BY
+	tua.create_time DESC
+	LIMIT 5
+	</select>
+
+    <select id="getAppsConnectionsStatisticsTopTen" resultMap="AppsConnectionsVO">
+        SELECT
+        tdu.app_id AS app_id,
+        tua.`name` AS app_name,
+        count( tdu.app_id ) AS count,
+        ( count( tdu.app_id )/(
+        SELECT
+        COUNT(*)
+        FROM
+        tb_connect tdu
+        WHERE
+        tdu.valid = TRUE
+
+        <if test="startTime != null  and  endTime!=null ">
+            AND ( (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} ) OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT(
+            tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        )
+        ) AS percentage
+        FROM
+        tb_connect tdu,
+        app tua
+        WHERE
+        tua.id = tdu.app_id
+        and tua.valid =1
+
+
+        <if test="startTime != null  and  endTime!=null ">
+            AND ( (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} ) OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT(
+            tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        GROUP BY
+        tdu.app_id
+        ORDER BY count DESC
+    </select>
+
+    <resultMap id="HotGameListVO" type="com.ydw.platform.model.vo.HotGameListVO"></resultMap>
+    <resultMap id="HotGameTag" type="com.ydw.platform.model.vo.HotGameTag"></resultMap>
+    <select id="getHotGameList" resultMap="HotGameTag">
+        SELECT
+        A.*,
+        B.tag
+        FROM
+
+        ( SELECT
+        a.id AS appId,
+        a.NAME AS appName,
+        a.description,
+        a.type,
+        a.free,
+        a.platform,
+        DATE_FORMAT( a.create_time, "%Y-%m-%d %H:%i:%S" ) as create_time,
+        ap.logo_pic,
+        ap.mid_pic,
+        ap.small_pic,
+        ap.big_pic,
+        B.count,
+        B.percentage
+        FROM app a,
+        (SELECT
+        tdu.app_id AS app_id,
+        count( tdu.app_id ) AS count,
+        ( count( tdu.app_id )/( SELECT COUNT(*) FROM tb_connect tdu WHERE tdu.valid = TRUE
+        <if test="startTime != null  and  endTime!=null ">AND ( ( DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date
+            #{startTime} AND date #{endTime}) OR
+            (
+            DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime } ) OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND (
+            DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        ) ) AS percentage
+        FROM
+        tb_connect tdu,
+        app tua
+        WHERE
+        tua.id = tdu.app_id
+        AND tua.valid = 1
+        <if test="startTime != null  and  endTime!=null ">
+            AND ( (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{ endTime} ) OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND (
+            DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        GROUP BY
+        tdu.app_id
+        ORDER BY count DESC LIMIT 5) B ,app_pictures ap WHERE ap.app_id= B.app_id and a.id= B.app_id
+        ORDER BY B.count DESC
+        )A LEFT JOIN (
+        SELECT
+        a.id,
+        group_concat( t.tag_name ) AS tag
+        FROM
+        app a,
+        app_tag AT,
+        tag t
+        WHERE
+        t.id = AT.tag_id
+        AND a.id = AT.app_id
+        AND t.id = AT.tag_id
+        AND t.valid = 1
+        GROUP BY
+        app_id
+        ) B ON B.id = A.appId
+        ORDER BY A.count DESC
+    </select>
+
+    <resultMap id="HotGameApps" type="com.ydw.platform.model.vo.HotGameApps"></resultMap>
+    <select id="getHotGameApps" resultMap="HotGameApps">
+        SELECT
+        A.*,
+        B.tag
+        FROM
+
+        ( SELECT
+        a.id AS appId,
+        a.NAME AS appName,
+        a.description,
+        a.type,
+        a.free,
+        a.platform,
+        DATE_FORMAT( a.create_time, "%Y-%m-%d %H:%i:%S" ) as create_time,
+
+        B.count,
+        B.percentage
+        FROM app a,
+        (SELECT
+        tdu.app_id AS app_id,
+        count( tdu.app_id ) AS count,
+        ( count( tdu.app_id )/( SELECT COUNT(*) FROM tb_connect tdu WHERE tdu.valid = TRUE
+        <if test="startTime != null  and  endTime!=null ">AND ( ( DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date
+            #{startTime} AND date #{endTime}) OR
+            (
+            DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime } ) OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND (
+            DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        ) ) AS percentage
+        FROM
+        tb_connect tdu,
+        app tua
+        WHERE
+        tua.id = tdu.app_id
+        AND tua.valid = 1
+        <if test="startTime != null  and  endTime!=null ">
+            AND ( (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{ endTime} ) OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND (
+            DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        GROUP BY
+        tdu.app_id
+        ORDER BY count DESC LIMIT 5) B WHERE a.id= B.app_id
+        ORDER BY B.count DESC
+        )A LEFT JOIN (
+        SELECT
+        a.id,
+        group_concat( t.tag_name ) AS tag
+        FROM
+        app a,
+        app_tag AT,
+        tag t
+        WHERE
+        t.id = AT.tag_id
+        AND a.id = AT.app_id
+        AND t.id = AT.tag_id
+        AND t.valid = 1
+        GROUP BY
+        app_id
+        ) B ON B.id = A.appId
+        ORDER BY A.count DESC
+    </select>
+
+    <resultMap id="TopAppVO" type="com.ydw.platform.model.vo.TopAppVO"></resultMap>
+    <select id="getTopApps" resultMap="TopAppVO">
+SELECT
+	A.*,
+	B.tag
+FROM
+	(
+	SELECT
+		tgg.game_order AS gameOrder,
+		tgg.weight1,
+		tgg.weight2,
+		tgg.weight3,
+		tua.id AS appId,
+		tua.NAME AS appName,
+		tua.description AS description,
+		tua.type,
+		tua.free,tua.point,
+		tua.platform
+	FROM
+		game_group tgg,
+		app tua
+	WHERE
+		tua.valid = 1
+		AND tua.id = tgg.game_id
+		AND tgg.gamegroup_id = #{id}
+	ORDER BY
+		tgg.game_order ASC
+	) A,
+	(
+	SELECT
+		a.id,
+		group_concat( t.tag_name ) AS tag
+	FROM
+		app a,
+		app_tag AT,
+		tag t
+	WHERE
+		t.id = AT.tag_id
+		AND a.id = AT.app_id
+		AND t.id = AT.tag_id
+		AND t.valid = 1
+	GROUP BY
+		app_id
+	) B
+WHERE
+	B.id = A.appId
+ORDER BY
+	A.gameOrder ASC
+    </select>
+	<resultMap id="GameGroupAppsVO" type="com.ydw.platform.model.vo.GameGroupAppsVO"></resultMap>
+
+	<select id="getGameGroupApps" resultMap="GameGroupAppsVO">
+  SELECT
+	A.*,
+	B.tag
+FROM
+	(
+	SELECT
+		tgg.game_order AS gameOrder,
+		tgg.weight1,
+		tgg.weight2,
+		tgg.weight3,
+		tua.id AS appId,
+		tua.NAME AS appName,
+		tua.description AS description,
+		tua.type,
+		tua.free,
+		tua.platform,
+		tua.point
+	FROM
+		game_group tgg,
+		app tua
+	WHERE
+	tua.valid = 1
+		AND tua.id = tgg.game_id
+			AND tgg.gamegroup_id = #{id}
+	ORDER BY
+		tgg.game_order ASC
+	) A,
+	(
+	SELECT
+		a.id,
+		group_concat( t.tag_name ) AS tag
+	FROM
+		app a,
+		app_tag AT,
+		tag t
+	WHERE
+		t.id = AT.tag_id
+		AND a.id = AT.app_id
+		AND t.id = AT.tag_id
+		and t.valid =1
+	GROUP BY
+		app_id
+	) B
+WHERE
+	B.id = A.appId
+  	ORDER BY A.gameOrder ASC
+	</select>
+</mapper>

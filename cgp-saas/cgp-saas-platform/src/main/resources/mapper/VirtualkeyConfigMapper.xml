@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.VirtualkeyConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.VirtualkeyConfig">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="content" property="content" />
+        <result column="remark" property="remark" />
+        <result column="app_id" property="appId" />
+        <result column="user_id" property="userId" />
+        <result column="create_type" property="createType" />
+        <result column="app_type" property="appType" />
+        <result column="key_type" property="keyType" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+</mapper>

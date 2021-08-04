@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.CouponCardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.CouponCard">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="description" property="description" />
+        <result column="promotion_type" property="promotionType" />
+        <result column="recharge_card_id" property="rechargeCardId" />
+        <result column="obtain_type" property="obtainType" />
+        <result column="validity_type" property="validityType" />
+        <result column="drawable_num" property="drawableNum" />
+        <result column="drawed_num" property="drawedNum" />
+        <result column="user_drawable_num" property="userDrawableNum" />
+        <result column="discount" property="discount" />
+        <result column="reduction" property="reduction" />
+        <result column="duration" property="duration" />
+        <result column="valid_begin_time" property="validBeginTime" />
+        <result column="valid_end_time" property="validEndTime" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <select id="getCouponList" resultType="com.ydw.admin.model.db.CouponCard">
+        SELECT
+            tcc.id,
+            tcc.name,
+            tcc.description,
+            tcc.promotion_type promotionType,
+            tcc.recharge_card_id rechargeCardId,
+            trc.name rechargeCardName ,
+            tcc.obtain_type obtainType,
+            tcc.validity_type validityType,
+            tcc.drawable_num drawableNum,
+            tcc.drawed_num drawedNum,
+            tcc.user_drawable_num userDrawableNum,
+            tcc.discount,
+            tcc.reduction,
+            tcc.duration,
+            tcc.valid_begin_time validBeginTime,
+            tcc.valid_end_time validEndTime,
+            tcc.create_time createTime,
+            tcc.update_time updateTime,
+            tcc.valid
+        FROM
+            tb_coupon_card tcc
+        LEFT JOIN tb_recharge_card trc ON tcc.recharge_card_id = trc.id
+        <where>
+            <if test="search != null">
+                tcc.name LIKE CONCAT('%', #{search}, '%')
+            </if>
+        </where>
+        ORDER BY
+            tcc.create_time DESC
+    </select>
+
+</mapper>

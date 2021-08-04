@@ -1,0 +1,6 @@
+/target/
+logs/
+./logs/
+
+.vs/
+.idea/ workspace.xml

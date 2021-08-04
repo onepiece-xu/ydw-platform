@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.DistributionAwardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.DistributionAward">
+        <id column="id" property="id" />
+        <result column="income" property="income" />
+        <result column="contribution" property="contribution" />
+        <result column="event" property="event" />
+        <result column="amount" property="amount" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    <select id="getUserDistributionAward" resultType="com.ydw.admin.model.vo.DistributionAwardVO">
+        SELECT
+            da.create_time createTime,
+            ui.nickname nickname,
+            ui.share_code shareCode,
+            da.amount amount
+        FROM
+            distribution_award da
+        LEFT JOIN user_info ui ON da.contribution = ui.id
+        WHERE
+            da.income = #{userId}
+            <if test="beginDate != null">
+                and da.create_time &gt; #{beginDate}
+            </if>
+            <if test="endDate != null">
+                and da.create_time &lt; #{endDate}
+            </if>
+            <if test="search != null">
+                and ui.nickname like concat('%',#{search},'%')
+            </if>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.game.dao.TbGameGroupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.game.model.db.TbGameGroup">
+        <id column="id" property="id"/>
+        <result column="gamegroup_id" property="gamegroupId"/>
+        <result column="game_id" property="gameId"/>
+        <result column="game_order" property="gameOrder"/>
+        <result column="weight1" property="weight1"/>
+        <result column="weight2" property="weight2"/>
+        <result column="weight3" property="weight3"/>
+    </resultMap>
+    <resultMap id="AppTagVO" type="com.ydw.game.model.vo.AppTagVO"></resultMap>
+
+    <resultMap id="GameGroupAppVO" type="com.ydw.game.model.vo.GameGroupAppVO">
+
+    </resultMap>
+    <resultMap id="AppsConnectionsVO" type="com.ydw.game.model.vo.AppsConnectionsVO">
+        <result column="app_name" property="appName"/>
+        <result column="app_id" property="appId"/>
+        <result column="count" property="count"/>
+    </resultMap>
+    <select id="getAppsByGameGroupId" resultMap="GameGroupAppVO">
+        SELECT
+        tgg.id as id,
+	tgg.game_order AS gameOrder,
+	tgg.weight1 ,
+	tgg.weight2 ,
+	tgg.weight3 ,
+	tua.id AS appId,
+	tua.NAME AS appName,
+	tua.description AS description
+        from tb_game_group tgg ,tb_app tua   WHERE  tua.id = tgg.game_id and  tgg.gamegroup_id=  #{id}  ORDER BY tgg.game_order ASC
+    </select>
+
+    <resultMap id="appVO" type="com.ydw.game.model.vo.AppVO"></resultMap>
+
+    <select id="getGameList" resultMap="appVO">
+    SELECT  tua.id AS appId,
+	tua.NAME AS appName
+	FROM tb_app tua
+    </select>
+
+    <select id="getNewGameList"  resultMap="AppTagVO">
+        SELECT  tua.id as appId ,tua.create_time as createTime ,tua.name as appName, tua.description as description  from tb_app tua
+         ORDER BY tua.create_time DESC
+    </select>
+
+    <select id="getAppIdsByGameGroupId" resultMap="BaseResultMap">
+      SELECT * from tb_game_group tgg  WHERE  tgg.gamegroup_id= #{id}  ORDER BY tgg.game_order ASC
+    </select>
+
+    <select id="getByGameGroupId" resultMap="BaseResultMap">
+        	   select  *from   tb_game_group where gamegroup_id = #{id}
+    </select>
+
+
+
+    <select id="getAppsConnectionsStatisticsTopTen" resultMap="AppsConnectionsVO">
+        SELECT
+        tdu.app_id AS app_id,
+        tua.`name` AS app_name,
+        count( tdu.app_id ) AS count,
+        ( count( tdu.app_id )/(
+        SELECT
+        COUNT(*)
+        FROM
+        tb_connect tdu
+        WHERE
+        tdu.valid = TRUE
+
+        <if test="startTime != null  and  endTime!=null ">
+            AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        )
+        ) AS percentage
+        FROM
+        tb_connect tdu,
+        tb_app tua
+        WHERE
+        tua.id = tdu.app_id
+
+
+
+        <if test="startTime != null  and  endTime!=null ">
+            AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        GROUP BY
+        tdu.app_id
+        ORDER BY count DESC
+    </select>
+</mapper>

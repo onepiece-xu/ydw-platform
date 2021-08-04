@@ -1,0 +1,23 @@
+server:
+  port: 7001
+spring:
+  cloud:
+    gateway:
+      #需要拦截的项目
+      routes:
+        - id: cgp-edge
+          uri: http://127.0.0.1:8081
+          predicates:
+            - Path=/cgp-edge/**
+
+#日志
+logging:
+  level:
+    com.ydw.gateway: debug
+
+#直接开放的api
+cgp:
+  openUrls:
+
+#反向认证url
+AuthenticationUrl: http://apidev.yidianwan.cn/cgp-paas-authentication/login/checkToken

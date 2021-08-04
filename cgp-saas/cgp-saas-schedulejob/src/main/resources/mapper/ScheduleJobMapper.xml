@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.schedulejob.dao.ScheduleJobMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.schedulejob.model.db.ScheduleJob">
+        <id column="id" property="id" />
+        <result column="job_name" property="jobName" />
+        <result column="job_group" property="jobGroup" />
+        <result column="start_time" property="startTime" />
+        <result column="start_time" property="startTime" />
+        <result column="frequency" property="frequency" />
+        <result column="cron" property="cron" />
+        <result column="url" property="url" />
+        <result column="method" property="method" />
+        <result column="body" property="body" />
+        <result column="headers" property="headers" />
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.SyncAppMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.SyncApp">
+        <id column="id" property="id" />
+        <result column="identification" property="identification" />
+        <result column="app_id" property="appId" />
+        <result column="action" property="action" />
+    </resultMap>
+	<resultMap id="App" type="com.ydw.user.model.vo.SyncAppVO"></resultMap>
+    <select id="getSyncAppList" resultMap="App">
+	SELECT
+			tua.id,
+			tua.name,
+			tua.access_id,
+			tua.description,
+			tua.upload_time AS create_time,
+			tua.type,
+			sa.action
+		FROM
+			sync_app sa
+			LEFT JOIN tb_user_apps tua ON sa.app_id = tua.id
+		WHERE
+			sa.identification =  #{id}
+    </select>
+
+</mapper>

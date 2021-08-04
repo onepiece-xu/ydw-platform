@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.resource.dao.ClustersMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.resource.model.db.Clusters">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="is_local" property="isLocal" />
+        <result column="description" property="description" />
+        <result column="api_url" property="apiUrl" />
+		<result column="node_url" property="nodeUrl" />
+        <result column="access_ip" property="accessIp" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="sch_status" property="schStatus" />
+        <result column="device_num" property="deviceNum" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+	<select id="getClusters" resultType="com.ydw.resource.model.vo.ClusterVO">
+		SELECT
+			tc.id clusterId, tc.name clusterName, tc.description, tc.access_ip accessIp, tc.access_port accessPort
+		FROM
+			cluster_owner co
+		LEFT JOIN tb_clusters tc ON co.cluster_id = tc.id
+		WHERE
+			co.owner_id = #{identification}
+			and co.valid = true and tc.valid = true
+	</select>
+
+	<select id="getClustersByApp" resultType="com.ydw.resource.model.vo.ClusterVO">
+		SELECT
+			tc.id clusterId,
+			tc. NAME clusterName,
+			tc.description,
+			tc.access_ip accessIp,
+			tc.access_port accessPort
+		FROM
+			tb_clusters tc
+		INNER JOIN cluster_owner co ON co.cluster_id = tc.id
+		WHERE
+			co.owner_id = #{identification}
+		AND co.valid = TRUE
+		AND tc.valid = TRUE
+		AND tc.id IN (
+			SELECT
+				cluster_id
+			FROM
+				tb_device_apps tda
+			INNER JOIN tb_devices td ON tda.device_id = td.id
+			WHERE
+				tda.app_id = #{appId}
+			AND tda.valid = TRUE
+			AND td.valid = TRUE
+			GROUP BY
+				td.cluster_id
+		)
+	</select>
+	
+	<select id="getClusterWebrtcConfig" resultType="com.ydw.resource.model.vo.WebrtcConfig">
+		SELECT
+			cs.cluster_id clusterId,
+			ss.http_url signalServer,
+			ss.https_url signalServerHttps,
+			ts.stun_url stunUrl,
+			ts.turn_tcp_url turnTcpUrl,
+			ts.turn_udp_url turnUdpUrl,
+			ts.user_name turnUser,
+			ts.credential turnPassword
+		FROM
+			cluster_signal cs
+		INNER JOIN cluster_turn ct ON cs.cluster_id = ct.cluster_id
+		INNER JOIN signal_server ss ON cs.signal_server = ss.id
+		INNER JOIN turn_server ts ON ct.turn_server = ts.id
+		where cs.cluster_id = #{clusterId}
+	</select>
+
+    <select id="getClustersByAppId" resultMap="BaseResultMap">
+		SELECT
+			tc.*
+		FROM
+			tb_clusters tc
+		LEFT JOIN cluster_owner to1 ON tc.id = to1.cluster_id
+		LEFT JOIN tb_user_apps tur ON tur.identification = to1.owner_id
+		WHERE
+			tur.id = #{appId}
+		AND tur.valid = TRUE
+		AND to1.valid = TRUE
+		AND tc.valid = TRUE
+	</select>
+</mapper>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.ActivityCenterMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.ActivityCenter">
+        <id column="id" property="id" />
+        <result column="pic_path" property="picPath" />
+        <result column="access_path" property="accessPath" />
+        <result column="type" property="type" />
+    </resultMap>
+
+</mapper>

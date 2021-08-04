@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbDemoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbDemo">
+        <id column="id" property="id" />
+        <result column="app_id" property="appId" />
+        <result column="order_number" property="orderNumber" />
+        <result column="valid" property="valid" />
+        <result column="type" property="type" />
+    </resultMap>
+
+    <select id="getByOrder" resultMap="BaseResultMap">
+
+	SELECT* FROM tb_demo td WHERE td.order_number=#{orderNumber}
+    </select>
+
+    <select id="getAll" resultMap="BaseResultMap">
+
+	SELECT* FROM tb_demo td
+    </select>
+</mapper>

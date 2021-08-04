@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.ClusterTurnMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.ClusterTurn">
+        <id column="id" property="id" />
+        <result column="cluster_id" property="clusterId" />
+        <result column="turn_server" property="turnServer" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="ClusterBindVO" type="com.ydw.user.model.vo.ClusterBindVO"></resultMap>
+
+    <select id="getByClusterId" resultMap="BaseResultMap">
+        SELECT * from cluster_turn where cluster_id= #{id}
+    </select>
+
+    <select id="getByTurnServer" resultMap="BaseResultMap">
+         SELECT * from cluster_turn where turn_server= #{id} and  valid =true
+    </select>
+
+    <select id="bindList" resultMap="ClusterBindVO">
+	SELECT
+	tc.name,tc.id
+FROM
+	cluster_turn ct,
+	tb_clusters tc
+WHERE
+	tc.id = ct.cluster_id
+	AND ct.turn_server =#{id}
+	and ct.valid =true
+	and tc.valid =1
+    </select>
+
+    <select id="unbindList" resultMap="ClusterBindVO">
+
+SELECT
+	A.NAME,
+	A.id
+FROM
+	tb_clusters A
+WHERE
+	NOT EXISTS ( SELECT 1 FROM cluster_turn B WHERE A.ID = B.cluster_id and B.valid =true)
+	AND A.type =1
+	and A.valid =1
+    </select>
+</mapper>

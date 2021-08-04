@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbDeviceUsedMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbDeviceUsed">
+        <id column="id" property="id" />
+        <result column="device_id" property="deviceId" />
+        <result column="app_id" property="appId" />
+        <result column="enterprise_id" property="enterpriseId" />
+        <result column="custom_id" property="customId" />
+        <result column="from_ip" property="fromIp" />
+        <result column="begin_time" property="beginTime" />
+        <result column="end_time" property="endTime" />
+        <result column="total_time" property="totalTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="VoResultMap" type="com.ydw.user.model.vo.DeviceUsedVO">
+        <id column="id" property="id"/>
+        <result column="device_id" property="deviceId"/>
+        <result column="app_id" property="appId"/>
+        <result column="user_id" property="userId"/>
+        <result column="custom_id" property="customId"/>
+        <result column="from_ip" property="fromIp"/>
+        <result column="begin_time" property="beginTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="total_time" property="totalTime"/>
+        <result column="status" property="status"/>
+        <result column="user_name" property="userName"/>
+        <result column="device_num" property="deviceNum"/>
+    </resultMap>
+
+    <resultMap id="ClusterConnectionsVO" type="com.ydw.user.model.vo.ClusterConnectionsVO">
+        <result column="cluster_name" property="clusterName"/>
+        <result column="cluster_id" property="clusterId"/>
+        <result column="count" property="count"/>
+    </resultMap>
+
+    <resultMap id="AppsConnectionsVO" type="com.ydw.user.model.vo.AppsConnectionsVO">
+        <result column="app_name" property="appName"/>
+        <result column="app_id" property="appId"/>
+        <result column="count" property="count"/>
+    </resultMap>
+
+
+    <resultMap id="DeviceUsageTrendVO" type="com.ydw.user.model.vo.DeviceUsageTrendVO"></resultMap>
+    <resultMap id="RecordListVO" type="com.ydw.user.model.vo.RecordListVO"></resultMap>
+
+    <resultMap id="OnlineUserVO" type="com.ydw.user.model.vo.OnlineUserVO"></resultMap>
+
+    <select id="getClusterConnectionsStatistics" resultMap="ClusterConnectionsVO">
+        SELECT
+        tc.id AS cluster_id,
+        tc.`name` AS cluster_name,
+        count( tc.id ) AS count
+        FROM
+        tb_device_used tdu,
+        tb_devices td,
+        tb_clusters tc
+        WHERE
+        td.id = tdu.device_id
+        AND td.cluster_id = tc.id
+        and tdu.valid=true
+        <if test="startTime != null  and  endTime!=null ">
+            AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        GROUP BY
+        tc.id
+
+    </select>
+
+    <select id="getClusterConnectionsRealTime" resultMap="ClusterConnectionsVO">
+        SELECT
+	tc.id AS cluster_id,
+	tc.`name` AS cluster_name,
+	count( tc.id ) AS count
+FROM
+	tb_device_used tdu,
+	tb_devices td,
+	tb_clusters tc
+WHERE
+	td.id = tdu.device_id
+	AND td.cluster_id = tc.id
+	and td.valid= true
+	and tc.valid =true
+	and tdu.valid= true
+	AND ((
+			DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) IS NOT TRUE
+		))
+GROUP BY
+	tc.id
+
+    </select>
+
+
+    <select id="getClusterConnectTimeStatistics" resultMap="ClusterConnectionsVO">
+        SELECT
+        tc.id AS cluster_id,
+        tc.`name` AS cluster_name,
+        sum( tdu.total_time )/ 60/60 AS count
+        FROM
+        tb_device_used tdu,
+        tb_devices td,
+        tb_clusters tc
+        WHERE
+        td.id = tdu.device_id
+        AND td.cluster_id = tc.id
+        and tdu.valid=true
+
+        <if test="startTime != null  and  endTime!=null ">
+            AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        GROUP BY
+        tc.id
+
+    </select>
+
+    <select id="getAppsConnectTimeStatistics" resultMap="AppsConnectionsVO">
+        SELECT
+        tdu.app_id AS app_id,
+        tua.`name` AS app_name,
+        sum( tdu.total_time ) /60/60 AS count,
+        ( sum( tdu.total_time ) ) / (
+        SELECT
+        sum( tdu.total_time )
+        FROM
+        tb_device_used tdu
+        WHERE
+        tdu.valid = TRUE
+        AND (
+        (
+        DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+        (
+        DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime} )  OR
+        ( DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime}))
+        ) AS percentage
+        FROM
+        tb_device_used tdu,
+        tb_user_apps tua,
+        tb_clusters tc,
+        tb_devices td
+        WHERE
+        tua.id = tdu.app_id
+        AND tdu.device_id = td.id
+        AND td.cluster_id = tc.id
+        and tdu.valid=true
+
+
+        <if test="clusterId!=null">
+            and tc.id = #{clusterId}
+        </if>
+    <if test="startTime != null  and  endTime!=null ">
+        AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+        (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+        (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime}))
+    </if>
+        GROUP BY
+        tdu.app_id
+
+        ORDER  BY count DESC
+    </select>
+
+    <select id="getAppsConnectionsStatisticsTopTen" resultMap="AppsConnectionsVO">
+    SELECT
+    tdu.app_id AS app_id,
+    tua.`name` AS app_name,
+    count( tdu.app_id ) AS count,
+    ( count( tdu.app_id )/(
+    SELECT
+    COUNT(*)
+    FROM
+    tb_device_used tdu
+    WHERE
+    tdu.valid = TRUE
+
+    <if test="startTime != null  and  endTime!=null ">
+        AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+        (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+        (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+        )
+    </if>
+    )
+    ) AS percentage
+    FROM
+    tb_device_used tdu,
+    tb_user_apps tua,
+    tb_clusters tc,
+    tb_devices td
+    WHERE
+    tua.id = tdu.app_id
+    AND tdu.device_id = td.id
+    AND td.cluster_id = tc.id
+
+
+    <if test="startTime != null  and  endTime!=null ">
+        AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+        (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+        (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+        )
+    </if>
+    GROUP BY
+    tdu.app_id
+
+    </select>
+
+
+    <select id="getAppsConnectionsStatistics" resultMap="AppsConnectionsVO">
+        SELECT
+        tdu.app_id AS app_id,
+        tua.`name` AS app_name,
+        count( tdu.app_id ) AS count,
+        (
+        count( tdu.app_id ) /(
+        SELECT
+        COUNT(*)
+        FROM
+        tb_device_used tdu
+        WHERE
+        tdu.valid = TRUE
+        )
+        ) AS percentage
+        FROM
+        tb_device_used tdu,
+        tb_user_apps tua,
+        tb_clusters tc,
+        tb_devices td
+        WHERE
+        tua.id = tdu.app_id
+        AND tdu.device_id = td.id
+        AND td.cluster_id = tc.id
+        and tdu.valid=true
+        <if test="clusterId!=null">
+            and tc.id = #{clusterId}
+        </if>
+    <if test="startTime != null  and  endTime!=null ">
+            AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+    </if>
+        GROUP BY
+        tdu.app_id
+      ORDER BY  count DESC
+
+    </select>
+
+    <select id="getAppsConnectTimeStatisticsTopTen" resultMap="AppsConnectionsVO">
+        SELECT
+        tdu.app_id AS app_id,
+        tua.`name` AS app_name,
+        sum( tdu.total_time ) /60/60  AS count,
+        CONCAT(
+        CAST(
+        CONVERT (
+        100 * CAST( sum( tdu.total_time ) AS DECIMAL ) / CAST(( SELECT sum( tdu.total_time ) FROM tb_device_used tdu WHERE tdu.valid = TRUE
+        ) AS DECIMAL ),
+        DECIMAL
+        ) AS CHAR
+        ),
+        '%'
+        ) AS percentage
+        FROM
+        tb_device_used tdu,
+        tb_user_apps tua,
+        tb_clusters tc,
+        tb_devices td
+        WHERE
+        tua.id = tdu.app_id
+        AND tdu.device_id = td.id
+        AND td.cluster_id = tc.id
+
+
+
+        <if test="startTime != null  and  endTime!=null ">
+            AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        GROUP BY
+        tdu.app_id
+    </select>
+
+    <select id="getAppsConnectionsRealTime" resultMap="AppsConnectionsVO">
+        SELECT
+        tdu.app_id AS app_id,
+        tua.`name` AS app_name,
+        count( tdu.app_id ) AS count,
+        (
+        count( tdu.app_id ) /(
+        SELECT
+        COUNT(*)
+        FROM
+        tb_device_used tdu
+        WHERE
+        tdu.valid = TRUE
+        AND (( DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) IS NOT TRUE ) ))
+        ) AS percentage
+        FROM
+        tb_device_used tdu,
+        tb_user_apps tua,
+        tb_clusters tc,
+        tb_devices td
+        WHERE
+        tua.id = tdu.app_id
+        AND tdu.device_id = td.id
+        AND td.cluster_id = tc.id
+        and tdu.valid=true
+        <if test="clusterId!=null">
+            and tc.id = #{clusterId}
+        </if>
+        AND ((
+        DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) IS NOT TRUE
+        ))
+        GROUP BY
+        tdu.app_id
+        order  by count  desc
+    </select>
+
+    <select id="getUsedById" resultMap="VoResultMap">
+        SELECT
+        tdu.*,
+        tc.`name` AS cluster_name,
+
+        tui.enterprise_name AS enterprise_name,
+        tua.NAME AS app_name,
+        td.NAME AS device_name
+        FROM
+        tb_device_used tdu,
+        tb_clusters tc,
+
+        tb_user_info tui,
+        tb_devices td,
+        tb_user_apps tua
+        where tdu.id=#{id}
+
+    AND tui.identification = tdu.enterprise_id
+	AND tdu.app_id = tua.id
+	AND tdu.device_id = td.id
+
+	AND tc.id = td.cluster_id
+    and tdu.valid=true
+    </select>
+    
+	<select id="getUsedList" resultMap="VoResultMap">
+		SELECT
+			tdu.id,
+			tdu.enterprise_id,
+			tui.enterprise_name AS enterprise_name,
+			tdu.device_id,
+			td.NAME AS device_name,
+			tdu.app_id,
+			tua.NAME AS app_name,
+			tdu.begin_time,
+			tdu.end_time,
+			tdu.total_time,
+            tdu.custom_id
+		FROM
+        tb_device_used tdu,
+        tb_user_info tui,
+        tb_devices td,
+        tb_user_apps tua
+		WHERE
+        tdu.enterprise_id = tui.identification
+        AND tdu.device_id = td.id
+        AND tdu.app_id = tua.id
+        AND tdu.valid = TRUE
+        <if test="deviceName!=null">
+             and td.name LIKE CONCAT('%', #{deviceName}, '%')
+        </if>
+        <if test="appName!=null">
+             and tua.name LIKE CONCAT('%', #{appName}, '%')
+        </if>
+        <if test="enterpriseName!=null">
+             and tui.enterprise_name  LIKE CONCAT('%', #{enterpriseName}, '%')
+        </if>
+        <if test="customId!=null">
+             and tdu.custom_id = #{customId}
+        </if>
+        <if test="fromIp!=null">
+             and tdu.from_ip= #{fromIp}
+        </if>
+        <if test="beginTime != null  and  endTime!=null">
+        	<choose>
+        		<when test="type==null">
+        			and tdu.begin_time &lt; STR_TO_DATE(#{endTime}, '%Y-%m-%d %H:%i:%s' ) and tdu.begin_time &gt; STR_TO_DATE(#{beginTime}, '%Y-%m-%d %H:%i:%s' )
+        		</when>
+        		<when test="type==1">
+        			and (tdu.begin_time between STR_TO_DATE(#{beginTime}, '%Y-%m-%d %H:%i:%s' ) and  STR_TO_DATE(#{endTime}, '%Y-%m-%d %H:%i:%s' ) )
+        		</when>
+        		<when test="type==2">
+        			and (tdu.end_time between STR_TO_DATE(#{beginTime}, '%Y-%m-%d %H:%i:%s' ) and STR_TO_DATE(#{endTime}, '%Y-%m-%d %H:%i:%s' ))
+        		</when>
+        	</choose>
+        </if>
+		ORDER BY
+			tdu.end_time DESC
+	</select>
+
+
+    <select id="getDayDeviceUsage" resultMap="DeviceUsageTrendVO">
+        SELECT
+       #{dayTime} AS dayTime,
+        td.cluster_id,
+        tc.NAME AS clusteraName,
+        sum(
+        TIMESTAMPDIFF(
+        SECOND,
+        IF
+        ( tdu.begin_time  <![CDATA[ < ]]>  STR_TO_DATE(  #{dayTime}, '%Y-%m-%d %H:%i:%s' ), STR_TO_DATE(  #{dayTime}, '%Y-%m-%d %H:%i:%s' ), tdu.begin_time ),
+        IF
+        (
+        tdu.end_time > DATE_ADD( STR_TO_DATE(  #{dayTime}, '%Y-%m-%d %H:%i:%s' ), INTERVAL 1 DAY )
+        OR tdu.end_time IS NULL,
+        DATE_ADD( STR_TO_DATE(  #{dayTime}, '%Y-%m-%d %H:%i:%s' ), INTERVAL 1 DAY ),
+        tdu.end_time
+        )
+        )
+        ) / 60 /(
+        tc.device_num * 24 * 60
+        ) percentage
+        FROM
+        tb_clusters tc,
+        tb_device_used tdu
+        LEFT JOIN tb_devices td ON tdu.device_id = td.id
+        WHERE
+        tc.id = td.cluster_id
+        AND tdu.begin_time  <![CDATA[ <= ]]>  DATE_ADD( STR_TO_DATE(  #{dayTime}, '%Y-%m-%d %H:%i:%s' ), INTERVAL 1 DAY ) AND tdu.end_time >= STR_TO_DATE(  #{dayTime}, '%Y-%m-%d %H:%i:%s' )
+        GROUP BY
+        td.cluster_id
+    </select>
+
+
+    <select id="getOnlineUsers" resultMap="OnlineUserVO">
+        SELECT
+	td.id AS deviceId,
+	td.NAME AS deviceName,
+	tdu.custom_id AS customerId,
+	tdu.app_id AS appId,
+	tua.name AS appName,
+	tdu.enterprise_id AS enterpriseId,
+	tdu.from_ip AS fromIp,
+	tdu.begin_time AS beginTime,
+	tc.id AS clusterId,
+	tc.NAME AS clusterName,
+	tui.enterprise_name AS enterpriseName
+FROM
+	tb_device_used tdu,
+	tb_clusters tc,
+	tb_user_info tui,
+	tb_devices td,
+	tb_user_apps tua
+WHERE
+    tua.id=tdu.app_id
+    and
+	tdu.device_id = td.id
+	AND td.cluster_id = tc.id
+	AND tui.identification = tdu.enterprise_id
+	AND tdu.end_time IS NOT TRUE
+        <if test="search!=null">
+            and    tua.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+
+
+    </select>
+
+    <select id="getTotal" resultType="String">
+      SELECT COUNT(*) FROM tb_device_used WHERE valid is true
+    </select>
+
+    <select id="getRecordPlayList" resultMap="RecordListVO">
+
+SELECT
+	tua.id AS appId,
+	tua.NAME AS appName,
+	tua.type,
+	A.end_time
+FROM
+	( SELECT tdu.app_id, max( tdu.end_time ) end_time FROM tb_device_used tdu WHERE tdu.custom_id = #{id} GROUP BY tdu.app_id ) A,
+	tb_user_apps tua
+WHERE
+	tua.id = A.app_id  ORDER BY
+	A.end_time DESC;
+    </select>
+    <select id="getUsedSummary" resultType="com.ydw.user.model.vo.ConnectSummaryVO">
+        SELECT
+        count(tdu.id) connectCount, sum(total_time/60) connectTime
+        FROM
+        tb_device_used tdu
+        WHERE tdu.valid = TRUE
+        <if test="deviceName!=null">
+            and tdu.device_id in (select id from tb_devices where name LIKE CONCAT('%', #{deviceName}, '%'))
+        </if>
+        <if test="appName!=null">
+            and tdu.app_id in (select id from tb_user_apps where name LIKE CONCAT('%', #{appName}, '%'))
+        </if>
+        <if test="enterpriseName!=null">
+            and tdu.enterprise_id in (select id from tb_user_info where enterprise_name LIKE CONCAT('%', #{enterpriseName}, '%'))
+        </if>
+        <if test="customId!=null">
+            and tdu.custom_id = #{customId}
+        </if>
+        <if test="fromIp!=null">
+            and tdu.from_ip= #{fromIp}
+        </if>
+        <if test="beginTime != null  and  endTime!=null">
+            <choose>
+                <when test="type==null">
+                    and tdu.begin_time &lt; STR_TO_DATE(#{endTime}, '%Y-%m-%d %H:%i:%s' ) and tdu.end_time &gt; STR_TO_DATE(#{beginTime}, '%Y-%m-%d %H:%i:%s' )
+                </when>
+                <when test="type==1">
+                    and (tdu.begin_time between STR_TO_DATE(#{beginTime}, '%Y-%m-%d %H:%i:%s' ) and  STR_TO_DATE(#{endTime}, '%Y-%m-%d %H:%i:%s' ) )
+                </when>
+                <when test="type==2">
+                    and (tdu.end_time between STR_TO_DATE(#{beginTime}, '%Y-%m-%d %H:%i:%s' ) and STR_TO_DATE(#{endTime}, '%Y-%m-%d %H:%i:%s' ))
+                </when>
+            </choose>
+        </if>
+
+    </select>
+</mapper>

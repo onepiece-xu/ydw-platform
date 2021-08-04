@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.AppPicturesMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.AppPictures">
+        <id column="id" property="id" />
+        <result column="big_pic" property="bigPic" />
+        <result column="mid_pic" property="midPic" />
+        <result column="small_pic" property="smallPic" />
+        <result column="app_id" property="appId" />
+        <result column="logo_pic" property="logoPic" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="AppPicDetailsVO" type="com.ydw.platform.model.vo.AppPicDetailsVO"></resultMap>
+    <select id="getAppPicDetails" resultMap="AppPicDetailsVO">
+    SELECT
+	a.id,
+	a.name,
+	a.description,
+	a.type,
+	a.create_time,
+	ap.big_pic,
+	ap.mid_pic,
+	ap.small_pic,
+	ap.logo_pic
+    FROM
+	app a,
+	app_pictures ap
+    WHERE
+	a.id = ap.app_id
+	AND ap.valid =1
+	and a.id= #{id}
+    </select>
+</mapper>

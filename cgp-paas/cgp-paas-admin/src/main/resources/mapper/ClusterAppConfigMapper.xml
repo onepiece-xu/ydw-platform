@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.ClusterAppConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.ClusterAppConfig">
+        <result column="id" property="id" />
+        <result column="cluster_id" property="clusterId" />
+        <result column="app_id" property="appId" />
+        <result column="package_file_name" property="packageFileName" />
+        <result column="package_file_path" property="packageFilePath" />
+        <result column="account_path" property="accountPath" />
+        <result column="save_path" property="savePath" />
+        <result column="start_shell" property="startShell" />
+        <result column="close_shell" property="closeShell" />
+    </resultMap>
+
+</mapper>

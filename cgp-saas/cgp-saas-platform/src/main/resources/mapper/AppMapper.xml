@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.AppMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.App">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="access_id" property="accessId" />
+        <result column="type" property="type" />
+        <result column="description" property="description" />
+        <result column="order_num" property="orderNum" />
+        <result column="create_time" property="createTime" />
+        <result column="valid" property="valid" />
+        <result column="introduction" property="introduction" />
+        <result column="point" property="point" />
+        <result column="english_name" property="englishName" />
+        <result column="control_mode" property="controlMode" />
+        <result column="archive_mode" property="archiveMode" />
+        <result column="publisher" property="publisher" />
+        <result column="developer" property="developer" />
+    </resultMap>
+
+    <resultMap id="AppTagVO" type="com.ydw.platform.model.vo.AppTagVO"></resultMap>
+    <resultMap id="CloudGameVO" type="com.ydw.platform.model.vo.CloudGameVO"></resultMap>
+    <resultMap id="RecordListVO" type="com.ydw.platform.model.vo.RecordListVO"></resultMap>
+    <resultMap id="AppVO" type="com.ydw.platform.model.vo.AppVO"></resultMap>
+    <resultMap id="AppListByTagsVO" type="com.ydw.platform.model.vo.AppListByTagsVO"></resultMap>
+
+    <select id="getWebApps" resultMap="AppTagVO">
+        SELECT
+        tua.id AS app_id,
+        tua.`name` AS app_name ,tua.description AS description,tua.type as type, tua.create_time as createTime
+        FROM
+        app tua
+        WHERE
+        valid =1
+        <if test="search!=null">
+            and tua.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+        and tua.type!=4 and tua.type!=3
+        ORDER BY tua.create_time DESC
+    </select>
+    <select id="getRecordPlayList" resultMap="RecordListVO">
+        SELECT
+	a.id AS appId,
+	a.NAME AS appName,
+	a.type,
+	A.end_time
+FROM
+	( SELECT tdu.app_id, max( tdu.end_time ) end_time FROM tb_connect tdu WHERE tdu.user_id =#{userId} GROUP BY tdu.app_id ) A,
+	app a
+WHERE
+	a.id = A.app_id
+	and a.valid=1
+ORDER BY
+	A.end_time DESC
+    </select>
+    <resultMap id="PlayListVO" type="com.ydw.platform.model.vo.PlayListVO"></resultMap>
+    <select id="getPlayList" resultMap="PlayListVO">
+	SELECT
+	a.NAME AS appName,
+	a.type,
+	tdu.app_id,
+	max( tdu.end_time ) end_time,
+	B.tag
+FROM
+	tb_connect tdu,
+	app a
+	LEFT JOIN (
+	SELECT
+		a.id,
+		group_concat( t.tag_name ) AS tag
+	FROM
+		app a,
+		app_tag AT,
+		tag t
+	WHERE
+		t.id = AT.tag_id
+		AND a.id = AT.app_id
+		AND t.id = AT.tag_id
+		AND t.valid = 1
+	GROUP BY
+		app_id
+	) B ON a.id = B.id
+WHERE
+	a.id = tdu.app_id
+	AND a.valid = 1
+	AND tdu.user_id = #{userId}
+GROUP BY
+	tdu.app_id
+ORDER BY
+	end_time DESC
+	LIMIT 20
+    </select>
+
+    <select id="getAppListByTag" resultType="String">
+        SELECT
+        t1.*
+        FROM
+        app t1,
+        (
+        SELECT
+        t.app_id,
+        count(t.tag_id) tagnum
+        FROM
+        app_tag t
+        WHERE
+
+        t.tag_id IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and t.valid= true
+        GROUP BY
+        t.app_id
+        ) t2
+        WHERE
+        t1.id = t2.app_id
+
+        <if test="search!=null">
+            and   t1.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+
+        AND t2.tagnum = #{size}
+        ORDER BY
+        t1.create_time DESC
+
+
+    </select>
+
+
+
+    <select id="getAppInfo" resultMap="CloudGameVO">
+SELECT
+	a.id as appId,
+	a.name as appName,
+	a.description,
+	a.type,
+	DATE_FORMAT(a.create_time,"%Y-%m-%d") as create_time,
+	ap.big_pic,
+	ap.small_pic,
+	ap.mid_pic,
+	ap.logo_pic
+FROM
+	app a
+	LEFT JOIN app_pictures ap ON ap.app_Id = a.id
+WHERE
+ap.valid = 1 and a.valid =1 and type not in(3,4)
+	and a.id=#{id}
+ORDER BY
+	a.create_time DESC
+    </select>
+
+    <select id="getAppListByTags" resultMap="AppListByTagsVO">
+        SELECT
+        a.id AS appId,
+        a.NAME AS appName,
+        a.description,
+        a.type,
+        a.free,
+        a.platform,
+        a.point,
+        DATE_FORMAT( a.create_time, "%Y-%m-%d %H:%i:%S" ) as  create_time,
+        an.tag
+        FROM
+
+        app a
+        LEFT JOIN
+        (
+        SELECT AT.app_id,
+        group_concat( t.tag_name ) AS tag
+        FROM
+        app_tag AT,
+        tag t
+        WHERE
+        t.id = AT.tag_id
+        AND t.valid = 1
+
+        GROUP BY
+        AT.app_id
+        ) an
+        on
+
+        an.app_id = a.id
+        WHERE
+        a.valid=1
+        and a.type not in(3,4)
+        <if test="search!=null">
+            and  a.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="type!=null">
+            and   a.type=#{type}
+        </if>
+        <if test="free!=null">
+            and   a.free=#{free}
+        </if>
+        <if test="platform!=null">
+            and  a.platform=#{platform}
+        </if>
+        <if test="size!=0">
+            and
+            <foreach collection="list" index="index" item="item" open="(" separator="and" close=")">
+                a.id IN ( SELECT DISTINCT app_tag.app_id FROM app_tag WHERE app_tag.tag_id = #{item} )
+            </foreach>
+        </if>
+        ORDER BY
+        a.create_time DESC
+
+    </select>
+
+
+    <select id="getAppList" resultMap="AppVO">
+
+        SELECT
+        a.id AS appId,
+        a.NAME AS appName,
+        a.description,
+        a.type,
+        a.free,
+        a.platform,
+        DATE_FORMAT( a.create_time, "%Y-%m-%d %H:%i:%S" ) as  create_time,
+        ap.logo_pic,
+        ap.mid_pic,
+        ap.small_pic,
+        ap.big_pic,
+        an.tag
+        FROM
+        app_pictures ap,
+        app a
+        LEFT JOIN
+        (
+        SELECT AT.app_id,
+        group_concat( t.tag_name ) AS tag
+        FROM
+        app_tag AT,
+        tag t
+        WHERE
+        t.id = AT.tag_id
+        AND t.valid = 1
+
+        GROUP BY
+        AT.app_id
+        ) an
+        on
+
+        an.app_id = a.id
+        WHERE
+         a.id = ap.app_id
+        and a.valid=1
+        and a.type not in(3,4)
+        <if test="search!=null">
+            and  a.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="type!=null">
+            and   a.type=#{type}
+        </if>
+        <if test="free!=null">
+            and   a.free=#{free}
+        </if>
+        <if test="platform!=null">
+            and  a.platform=#{platform}
+        </if>
+        <if test="size!=0">
+            and
+        <foreach collection="list" index="index" item="item" open="(" separator="and" close=")">
+            a.id IN ( SELECT DISTINCT app_tag.app_id FROM app_tag WHERE app_tag.tag_id = #{item} )
+        </foreach>
+        </if>
+        ORDER BY
+        a.create_time DESC
+
+    </select>
+
+</mapper>

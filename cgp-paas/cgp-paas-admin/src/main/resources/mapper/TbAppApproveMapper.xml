@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbAppApproveMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbAppApprove">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="english_name" property="englishName" />
+        <result column="game_maker" property="gameMaker" />
+        <result column="game_publisher" property="gamePublisher" />
+        <result column="game_type" property="gameType" />
+        <result column="cooperation_type" property="cooperationType" />
+        <result column="auth_period" property="authPeriod" />
+        <result column="package_file_name" property="packageFileName" />
+        <result column="package_name" property="packageName" />
+        <result column="size" property="size" />
+        <result column="real_size" property="realSize" />
+        <result column="type" property="type" />
+        <result column="account_path" property="accountPath" />
+        <result column="data_path" property="dataPath" />
+        <result column="description" property="description" />
+        <result column="package_path" property="packagePath" />
+        <result column="insure_pic" property="insurePic" />
+        <result column="has_access_id" property="hasAccessId" />
+        <result column="access_id" property="accessId" />
+        <result column="status" property="status" />
+        <result column="valid" property="valid" />
+        <result column="create_time" property="createTime" />
+        <result column="modified_time" property="modifiedTime" />
+        <result column="access_id_pic" property="accessIdPic" />
+        <result column="result" property="result" />
+        <result column="identification" property="identification" />
+        <result column="sch_install" property="schInstall" />
+        <result column="install_max_number" property="installMaxNumber" />
+        <result column="screen" property="screen" />
+    </resultMap>
+
+    <resultMap id="gameTypeVO" type="com.ydw.user.model.db.TbGameType">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="tag" property="tag" />
+    </resultMap>
+
+
+
+    <select id="getList" resultMap="BaseResultMap">
+        SELECT * FROM tb_app_approve  taa where taa.valid=true and taa.status!=0  and  taa.status=3
+
+
+        <if test="status != null">
+           AND taa.status=#{status}
+        </if>
+        <if test="cooperationType != null">
+            AND taa.cooperation_type=#{cooperationType}
+        </if>
+        <if test="search != null">
+            AND taa.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+
+    </select>
+
+    <select id="getAppApprove" resultMap="BaseResultMap">
+        SELECT * FROM tb_app_approve  taa where taa.id=#{id} and  taa.valid=true
+    </select>
+
+    <update id="updateSelective" parameterType="com.ydw.user.model.db.TbAppApprove">
+        UPDATE tb_app_approve
+        <set>
+            `name`=#{name},
+
+
+            english_name=#{englishName},
+
+
+            game_maker= #{gameMaker},
+
+
+            game_publisher= #{gamePublisher},
+
+
+            game_type= #{gameType},
+
+            cooperation_type= #{cooperationType},
+
+
+            auth_period= #{authPeriod},
+
+            package_file_name= #{packageFileName},
+
+
+            package_name= #{packageName},
+
+            `size`= #{size},
+
+            real_size= #{realSize},
+
+            `type`= #{type},
+
+            account_path= #{accountPath},
+
+            data_path= #{dataPath},
+
+            description=#{description},
+
+            package_path=#{packagePath},
+
+            insure_pic= #{insurePic},
+
+
+            has_access_id= #{hasAccessId},
+
+
+            access_id=#{accessId},
+
+
+            access_id_pic= #{accessIdPic},
+
+
+            <if test="status != null">
+            status= #{status},
+            </if>
+            <if test="valid != null">
+            valid= #{valid},
+            </if>
+            <if test="createTime != null">
+            create_time= #{createTime},
+            </if>
+            <if test="modifiedTime != null">
+            modified_time= #{modifiedTime},
+            </if>
+            <if test="status != null">
+            status= #{status}
+            </if>
+        </set>
+        where id=#{id}
+
+    </update>
+
+
+    <select id="getGameType"  resultMap="gameTypeVO">
+     SELECT * from tb_game_type
+     </select>
+
+</mapper>

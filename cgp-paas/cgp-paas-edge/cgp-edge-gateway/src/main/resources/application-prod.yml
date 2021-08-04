@@ -1,0 +1,31 @@
+server:
+  port: 7000
+spring:
+  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: 127.0.0.1:8848 # 将gateway注册到nacos
+    gateway:
+      discovery:
+        locator:
+          enabled: true # 让gateway从nacos中获取服务信息
+      #需要拦截的项目
+      routes:
+        - id: cgp-edge
+          uri: http://127.0.0.1:8080
+          #uri: lb://cgp-edge
+          predicates:
+            - Path=/cgp-edge/**
+      httpclient:
+        pool:
+          max-idle-time: PT15S
+
+#直接开放的api
+cgp:
+  openUrls:
+    - /cgp-edge/v1/device/updatestatus
+    - /cgp-edge/v1/device/abnormal
+    - /cgp-edge/v1/device/normal
+
+#反向认证url
+AuthenticationUrl: https://api.yidianwan.cn/cgp-paas-authentication/login/checkToken

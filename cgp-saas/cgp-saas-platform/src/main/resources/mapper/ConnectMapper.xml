@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.ConnectMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.Connect">
+        <id column="id" property="id" />
+        <result column="device_id" property="deviceId" />
+        <result column="device_name" property="deviceName" />
+        <result column="app_id" property="appId" />
+        <result column="user_id" property="userId" />
+        <result column="cluster_ip" property="clusterId" />
+        <result column="cluster_name" property="clusterName" />
+        <result column="from_ip" property="fromIp" />
+        <result column="begin_time" property="beginTime" />
+        <result column="end_time" property="endTime" />
+        <result column="abnormal_time" property="abnormalTime" />
+        <result column="total_time" property="totalTime" />
+        <result column="client" property="client" />
+        <result column="type" property="type" />
+        <result column="netbar_id" property="netbarId" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+</mapper>

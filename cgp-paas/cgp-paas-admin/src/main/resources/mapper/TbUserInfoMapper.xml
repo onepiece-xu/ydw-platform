@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbUserInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbUserInfo">
+        <id column="id" property="id"/>
+        <result column="enterprise_name" property="enterpriseName" />
+        <result column="login_name" property="loginName" />
+        <result column="password" property="password" />
+        <result column="identification" property="identification" />
+        <result column="secretKey" property="secretKey" />
+        <result column="type" property="type" />
+        <result column="email" property="email" />
+        <result column="mobile_number" property="mobileNumber" />
+        <result column="tel_number" property="telNumber" />
+        <result column="description" property="description" />
+        <result column="amount" property="amount" />
+        <result column="pay_amount" property="payAmount" />
+        <result column="create_time" property="createTime" />
+        <result column="modified_time" property="modifiedTime" />
+        <result column="sch_status" property="schStatus" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.ydw.user.model.vo.UserVO">
+        <id column="id" property="id"/>
+        <result column="enterprise_name" property="enterpriseName" />
+        <result column="login_name" property="loginName"/>
+        <result column="password" property="password"/>
+        <result column="identification" property="identification"/>
+        <result column="SecretKey" property="SecretKey"/>
+        <result column="type" property="type"/>
+        <result column="email" property="email"/>
+        <result column="mobile_number" property="mobileNumber"/>
+        <result column="tel_number" property="telNumber"/>
+        <result column="description" property="description"/>
+        <result column="amount" property="amount"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="sch_status" property="schStatus" />
+    </resultMap>
+
+    <resultMap id="AppVoResultMap" type="com.ydw.user.model.vo.AppVO">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="size" property="size" />
+        <result column="real_size" property="realSize" />
+        <result column="access_id" property="accessId" />
+        <result column="type" property="type" />
+        <result column="path" property="path" />
+        <result column="description" property="description" />
+        <result column="save_path" property="savePath" />
+        <result column="close_shell" property="closeShell" />
+        <result column="strategy_id" property="strategyId" />
+        <result column="upload_time" property="uploadTime" />
+        <result column="user_id" property="userId" />
+        <result column="status" property="status" />
+        <result column="result_desc" property="resultDesc" />
+        <result column="identification" property="identification"/>
+        <result column="approval_id" property="approvalId" />
+        <result column="approval_time" property="approvalTime" />
+        <result column="delete_id" property="deleteId" />
+        <result column="delete_time" property="deleteTime" />
+        <result column="package_name" property="packageName" />
+        <result column="package_file_name" property="packageFileName" />
+        <result column="account_path" property="accountPath" />
+        <result column="start_shell" property="startShell" />
+        <result column="enterprise_name" property="enterpriseName" />
+        <result column="strategy_name" property="strategyName" />
+        <result column="valid" property="valid" />
+        <result column="sch_status" property="schStatus" />
+        <result column="sch_install" property="schInstall" />
+        <result column="install_max_number" property="installMaxNumber" />
+    </resultMap>
+
+
+    <insert id="insertSelective" parameterType="com.ydw.user.model.db.TbUserInfo">
+        INSERT INTO tb_user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="enterpriseName != null">
+                enterprise_name,
+            </if>
+            <if test="loginName != null">
+                login_name,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="identification != null">
+                identification,
+            </if>
+            <if test="SecretKey != null">
+                SecretKey,
+            </if>
+            <if test="type != null">
+                `type`,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="mobileNumber != null">
+                mobile_number,
+            </if>
+            <if test="telNumber != null">
+                tel_number,
+            </if>
+            <if test="description != null">
+                `description`,
+            </if>
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="payAmount != null">
+                pay_amount,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifiedTime != null">
+                modified_time,
+            </if>
+            <if test="schStatus != null">
+                sch_status,
+            </if>
+            <if test="valid != null">
+                valid,
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="enterpriseName != null">
+                #{enterpriseName,jdbcType=VARCHAR},
+            </if>
+            <if test="loginName != null">
+                #{loginName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="identification != null">
+                #{identification,jdbcType=VARCHAR},
+            </if>
+            <if test="SecretKey != null">
+                #{SecretKey},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="email != null">
+                #{email},
+            </if>
+            <if test="mobileNumber != null">
+                #{mobileNumber},
+            </if>
+            <if test="telNumber != null">
+                #{telNumber},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="amount != null">
+                #{amount},
+            </if>
+            <if test="payAmount != null">
+                #{payAmount},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="modifiedTime != null">
+                #{modifiedTime},
+            </if>
+            <if test="schStatus != null">
+                #{schStatus},
+            </if>
+            <if test="valid != null">
+                #{valid},
+            </if>
+
+        </trim>
+    </insert>
+
+    <select id="selectByInfoId" parameterType="java.lang.String"
+            resultMap="BaseResultMap">
+		SELECT * FROM tb_user_info WHERE BINARY id=
+		#{id,jdbcType=VARCHAR}
+	</select>
+
+    <update id="updateSelective" parameterType="com.ydw.user.model.db.TbUserInfo">
+        UPDATE tb_user_info
+        <set>
+            <if test="enterpriseName != null">
+                enterprise_name=#{enterpriseName,jdbcType=VARCHAR},
+            </if>
+            <if test="loginName != null">
+                login_name=#{loginName,jdbcType=VARCHAR},
+            </if>
+
+            <if test="identification != null">
+                identification= #{identification},
+            </if>
+            <if test="type != null">
+                `type`= #{type},
+            </if>
+            <if test="email != null">
+                email=#{email},
+            </if>
+            <if test="mobileNumber != null">
+                mobile_number=#{mobileNumber},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time= #{modifiedTime},
+            </if>
+            <if test="telNumber != null">
+                tel_number= #{telNumber},
+            </if>
+            <if test="description != null">
+                `description`=#{description},
+            </if>
+            <if test="password != null">
+                `password`= #{password},
+            </if>
+            <if test="amount != null">
+                amount= #{amount},
+            </if>
+            <if test="payAmount != null">
+                pay_amount= #{payAmount},
+            </if>
+
+
+            <if test="createTime != null">
+                create_time= #{createTime},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time= #{modifiedTime},
+            </if>
+            <if test="schStatus != null">
+                sch_status= #{schStatus},
+            </if>
+            <if test="valid != null">
+                valid=#{valid},
+            </if>
+
+        </set>
+        where id=#{id,jdbcType=VARCHAR}
+
+    </update>
+
+    <select id="getUserList"  resultMap="BaseResultMap">
+        SELECT * FROM tb_user_info t
+        WHERE
+        id!=''
+        <if test="enterpriseName!=null">
+            and enterprise_name=#{enterpriseName}
+        </if>
+        <if test="loginName!=null">
+            and login_name=#{loginName}
+        </if>
+        <if test="identification!=null">
+            and identification=#{identification}
+        </if>
+        <if test="type!=null">
+            and `type`=#{type}
+        </if>
+        <if test="schStatus != null">
+            and  sch_status= #{schStatus},
+        </if>
+        <if test="mobileNumber!=null">
+            and mobile_number=#{mobileNumber}
+        </if>
+        <if test="telNumber!=null">
+            and tel_number=#{telNumber}
+        </if>
+
+        <if test="search!=null">
+        and enterprise_name  LIKE CONCAT('%', #{search}, '%')
+        </if>
+        and t.valid=true
+        and t.type=2
+        ORDER BY t.create_time DESC
+    </select>
+
+    <select id="getByLoginName"  resultMap="BaseResultMap">
+        SELECT *from tb_user_info  where login_name=#{loginName}
+    </select>
+    <select id="getByIdentification"  resultMap="BaseResultMap">
+        SELECT *from tb_user_info  where identification=#{identification}
+    </select>
+
+
+
+    <select id="getAppsByIdentification"  resultMap="AppVoResultMap">
+       SELECT* from tb_user_apps where identification = #{identification} and valid =true
+    </select>
+
+
+    <select id="getUserBySecretKeyAndIdentification"  resultMap="BaseResultMap">
+     SELECT *from tb_user_info  where secretKey=#{secretKey} and  identification=#{identification}
+    </select>
+
+
+    <select id="serviceUserList"  resultMap="BaseResultMap">
+     SELECT *from tb_user_info  where  valid =true and type =2
+    </select>
+
+</mapper>

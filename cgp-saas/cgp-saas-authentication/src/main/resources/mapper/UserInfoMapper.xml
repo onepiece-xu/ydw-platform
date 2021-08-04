@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.authentication.dao.UserInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.authentication.model.db.UserInfo">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+        <result column="mobile_number" jdbcType="VARCHAR" property="mobileNumber" />
+        <result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+        <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+        <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+        <result column="wechat" jdbcType="VARCHAR" property="wechat" />
+        <result column="qq_number" jdbcType="VARCHAR" property="qqNumber" />
+        <result column="wechat_open_id" jdbcType="VARCHAR" property="wechatOpenId" />
+        <result column="share_code" jdbcType="VARCHAR" property="shareCode" />
+        <result column="profit" jdbcType="DECIMAL" property="profit" />
+        <result column="balance" jdbcType="DECIMAL" property="balance" />
+        <result column="status" jdbcType="DECIMAL" property="status" />
+    </resultMap>
+
+
+    <insert id="insertSelective" parameterType="com.ydw.authentication.model.db.UserInfo">
+        INSERT INTO user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="nickname != null">
+                nickname,
+            </if>
+            <if test="mobileNumber != null">
+                mobile_number,
+            </if>
+            <if test="registerTime != null">
+                register_time,
+            </if>
+            <if test="modifiedTime != null">
+                modified_time,
+            </if>
+            <if test="avatar != null">
+                avatar,
+            </if>
+            <if test="wechat != null">
+                wechat,
+            </if>
+            <if test="qqNumber != null">
+                qq_number,
+            </if>
+            <if test="wechatOpenId != null">
+                wechat_open_id,
+            </if>
+            <if test="shareCode != null">
+                share_code,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="nickname != null">
+                #{nickname,jdbcType=VARCHAR},
+            </if>
+            <if test="mobileNumber != null">
+                #{mobileNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="registerTime != null">
+                #{registerTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifiedTime != null">
+                #{modifiedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="avatar != null">
+                #{avatar,jdbcType=VARCHAR},
+            </if>
+            <if test="wechat != null">
+                #{wechat,jdbcType=VARCHAR},
+            </if>
+            <if test="qqNumber != null">
+                #{qqNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="wechatOpenId != null">
+                #{wechatOpenId,jdbcType=VARCHAR},
+            </if>
+            <if test="shareCode != null">
+                #{shareCode,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+
+    <select id="selectByMobileNumber" parameterType="java.lang.String"
+            resultMap="BaseResultMap">
+		SELECT * FROM user_info WHERE BINARY mobile_number=
+		#{mobileNumber,jdbcType=VARCHAR}
+	</select>
+
+    <select id="selectByInfoId" parameterType="java.lang.String"
+            resultMap="BaseResultMap">
+		SELECT * FROM user_info WHERE BINARY id=
+		#{id,jdbcType=VARCHAR}
+	</select>
+
+    <select id="selectByWXOpenId" parameterType="java.lang.String"
+            resultMap="BaseResultMap">
+        SELECT * FROM user_info WHERE BINARY wechat_open_id=
+        #{id,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByQQOpenId" parameterType="java.lang.String"
+            resultMap="BaseResultMap">
+        SELECT * FROM user_info WHERE BINARY qq_open_id=
+        #{id,jdbcType=VARCHAR}
+    </select>
+
+    <update id="updateSelective" parameterType="com.ydw.authentication.model.db.UserInfo">
+        UPDATE user_info
+        <set>
+            <if test="nickname != null">
+                nickname=#{nickname,jdbcType=VARCHAR},
+            </if>
+            <if test="mobileNumber != null">
+                mobile_number=#{mobileNumber,jdbcType=VARCHAR},
+            </if>
+
+            <if test="registerTime != null">
+                register_time=#{registerTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time= #{modifiedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="avatar != null">
+                avatar= #{avatar,jdbcType=VARCHAR},
+            </if>
+            wechat=	#{wechat,jdbcType=VARCHAR},
+            qq_number= #{qqNumber,jdbcType=VARCHAR},
+            <if test="wechatOpenId != null">
+                wechat_open_id= #{wechatOpenId,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id=#{id,jdbcType=VARCHAR}
+
+    </update>
+
+    <select id="getUserShareInfo" resultType="com.ydw.authentication.model.vo.UserShareInfoVO">
+        SELECT
+            tt.inviteNum,
+            ui.profit,
+            ui.balance,
+            ui.share_code shareCode
+        FROM
+            user_info ui
+        LEFT JOIN (
+            SELECT
+                ur.recommender,
+                count(1) inviteNum
+            FROM
+                user_relational ur
+            WHERE
+                ur.recommender = #{userId}
+                and ur.valid = true
+        ) tt ON ui.id = tt.recommender
+        WHERE
+            ui.id = #{userId};
+    </select>
+
+    <select id="getUserRecommender" resultMap="BaseResultMap">
+        SELECT
+            ui.id,
+            ui.nickname,
+            ui.mobile_number mobileNumber,
+            ui.avatar,
+            ui.share_code shareCode,
+            ui.profit,
+            ui.balance
+        FROM
+            user_relational ur
+        LEFT JOIN user_info ui ON ur.recommender = ui.id
+        WHERE
+            ur.inferior = #{userId}
+    </select>
+</mapper>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.resource.dao.UserAppsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.resource.model.db.UserApps">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="package_name" property="packageName" />
+        <result column="size" property="size" />
+        <result column="real_size" property="realSize" />
+        <result column="access_id" property="accessId" />
+        <result column="type" property="type" />
+        <result column="description" property="description" />
+        <result column="strategy_id" property="strategyId" />
+        <result column="upload_time" property="uploadTime" />
+        <result column="identification" property="identification" />
+        <result column="status" property="status" />
+        <result column="result_desc" property="resultDesc" />
+        <result column="approval_id" property="approvalId" />
+        <result column="approval_time" property="approvalTime" />
+        <result column="delete_id" property="deleteId" />
+        <result column="delete_time" property="deleteTime" />
+        <result column="valid" property="valid" />
+        <result column="sch_status" property="schStatus" />
+        <result column="sch_install" property="schInstall" />
+        <result column="install_max_number" property="installMaxNumber" />
+        <result column="install_current_number" property="installCurrentNumber" />
+        <result column="screen" property="screen" />
+        <result column="publish_time" property="publishTime" />
+        <result column="pc_strategy_id" property="pcStrategyId" />
+    </resultMap>
+    <select id="getUserAppInfo" resultType="com.ydw.resource.model.vo.AppInfo">
+        SELECT
+            t1.id,
+            t1.NAME,
+            t1.package_name packageName,
+            t3.package_file_name packageFileName,
+            t3.package_file_path packageFilePath,
+            t3.account_path accountPath,
+            t3.save_path savePath,
+            t3.start_shell startShell,
+            t3.close_shell closeShell,
+            t1.size size,
+            t1.real_size realSize,
+            t1.type type,
+            t1.description description,
+            t1.strategy_id strategyId,
+            t1.pc_strategy_id pcStrategyId,
+            t1.identification identification,
+            t1.upload_time uploadTime,
+            t1.STATUS STATUS,
+            t1.valid valid,
+            t1.sch_status schStatus,
+            t1.sch_install schInstall,
+            t1.install_max_number installMaxNumber,
+            t1.install_current_number installCurrentNumber,
+            t1.screen screen
+        FROM
+            tb_user_apps t1
+        LEFT JOIN tb_cluster_app_config t3 ON t1.id = t3.app_id and t3.cluster_id = #{clusterId}
+        WHERE
+            t1.id = #{appId}
+    </select>
+
+    <select id="getAppsByIdentification" resultType="com.ydw.resource.model.vo.AppVO">
+        SELECT
+            t.id AS appId,
+            t. NAME AS appName,
+            t.description
+        FROM
+            tb_user_apps_related tt
+        LEFT JOIN tb_user_apps t ON tt.app_id = t.id
+        WHERE
+            tt.enterprise_id = #{identification}
+        AND t.STATUS = 2
+        AND t.sch_status = true
+        AND t.valid = TRUE
+    </select>
+    <select id="getAppByIdentification" resultType="com.ydw.resource.model.vo.AppVO">
+        SELECT
+            t.id AS appId,
+            t. NAME AS appName,
+            t.description
+        FROM
+            tb_user_apps_related tt
+        LEFT JOIN tb_user_apps t ON tt.app_id = t.id
+        WHERE
+            tt.enterprise_id = #{identification}
+        AND t.id = #{appId}
+        AND t.STATUS = 2
+        AND t.sch_status = true
+        AND t.valid = TRUE
+    </select>
+
+</mapper>

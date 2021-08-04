@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.schedule.dao.TbDeviceAppsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.schedule.model.db.TbDeviceApps">
+        <id column="id" property="id" />
+        <result column="device_id" property="deviceId" />
+        <result column="app_id" property="appId" />
+        <result column="setup_time" property="setupTime" />
+        <result column="uninstall_time" property="uninstallTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+	<select id = "getTbDeviceAppsByApp" resultType = "String">
+		SELECT
+			td.id
+		FROM
+			tb_device_apps tda
+			INNER JOIN tb_devices td ON tda.device_id = td.id
+		WHERE
+			td.cluster_id = #{clusterId}
+			AND td.valid = true
+			AND tda.app_id = #{appId}
+			AND tda.valid = true
+	</select>
+
+</mapper>

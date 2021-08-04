@@ -1,0 +1,62 @@
+server:
+  port: 9084
+  servlet:
+    context-path: /cgp-saas-message
+spring:
+  application:
+    name: cgp-saas-message
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848 # 将gateway注册到nacos
+  # redis连接配置
+  redis:
+    # Redis数据库索引（默认为0）
+    database: 13
+    # Redis服务器地址
+    host: 192.168.1.201
+    # Redis服务器连接端口
+    port: 6379
+    # Redis服务器连接密码（默认为空）
+    password:
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 120000
+        readTimeout: 120000
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+  hystrix:
+    enabled: true
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 180000
+
+#日志
+logging:
+  level:
+    com.ydw.message: debug
+
+#极光推送
+jpush:
+  appKey: 93239ccdeb389fb6e98f80d9
+  masterSecret: 04770f63b3c10597f0989ec8
+
+#绑定关系
+bind:
+  #扫描周期（分钟）
+  scanPeriod: 3
+
+#短信配置
+sms:
+  appId: 1400349137
+  appKey: 125873d60b2cee73ca4161ba2fb74edb

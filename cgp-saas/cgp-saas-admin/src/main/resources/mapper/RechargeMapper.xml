@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.RechargeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.Recharge">
+        <id column="id" property="id" />
+        <result column="order_num" property="orderNum" />
+        <result column="subject" property="subject" />
+        <result column="cost" property="cost" />
+        <result column="account" property="account" />
+        <result column="pay_type" property="payType" />
+        <result column="card_id" property="cardId" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <resultMap id="RechargeListVO" type="com.ydw.admin.model.vo.RechargeListVO"></resultMap>
+
+    <select id="getRechargeList" resultMap="RechargeListVO">
+        SELECT
+            ui.nickname as userName,ui.id as  userId,tr.subject,tr.create_time,tr.final_cost as cost
+        FROM
+            tb_recharge tr,
+            user_info ui
+        WHERE
+            tr.account= ui.id
+            and tr.status=1
+        <if test="startTime != null  and  endTime!=null ">
+            and tr.create_time  &gt;= #{startTime}  and tr.create_time  &lt;= #{endTime}
+        </if>
+                <if test="search!=null">
+                    and ui.nickname LIKE CONCAT('%', #{search}, '%')
+                </if>
+            ORDER BY tr.create_time desc
+    </select>
+    <select id="rechargeSummary" resultType="com.ydw.admin.model.vo.RechargeSummaryVO">
+        select count(1) rechargeCount, sum(final_cost) rechargeAmount from tb_recharge where status = 1
+        <if test="startTime != null  and  endTime!=null ">
+            and create_time &gt;= #{startTime}  and create_time &lt;= #{endTime}
+        </if>
+        <if test="search != null">
+            and account in (select id from user_info where nickname like concat('%',#{search},'%'))
+        </if>
+    </select>
+    <select id="getRechargeListByEnterprise" resultMap="RechargeListVO">
+        SELECT
+          ui.nickname as userName,ui.id as  userId,tr.subject,tr.create_time,tr.final_cost as cost
+        FROM
+          tb_recharge tr,
+          user_info ui
+        WHERE
+          tr.account= ui.id
+          and tr.status= 1
+        <if test="search!=null">
+            and ui.nickname LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="list != null">
+            and ui.channel_id IN
+            <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        ORDER BY tr.create_time desc
+    </select>
+    <select id="getRechargeCountByEnterprise" resultType="com.ydw.admin.model.vo.RechargeSummaryVO">
+        SELECT
+          count(1) rechargeCount, sum(tr.final_cost) rechargeAmount
+        FROM
+          tb_recharge tr,
+          user_info ui
+        WHERE
+          tr.account= ui.id
+        and tr.status= 1
+        <if test="search!=null">
+            and ui.nickname LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="list != null">
+            and ui.channel_id IN
+            <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+</mapper>

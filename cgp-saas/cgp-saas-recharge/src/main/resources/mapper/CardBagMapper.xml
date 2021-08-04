@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.recharge.dao.CardBagMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.recharge.model.db.CardBag">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="card_id" property="cardId"/>
+        <result column="type" property="type"/>
+        <result column="duration" property="duration"/>
+        <result column="used_duration" property="usedDuration"/>
+        <result column="begin_time" property="beginTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="begin_period" property="beginPeriod"/>
+        <result column="end_period" property="endPeriod"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="valid" property="valid"/>
+    </resultMap>
+    <select id="getCardsByUserIdAndType" resultMap="BaseResultMap">
+        SELECT
+        tcb.id,tcb.end_time
+        FROM
+        tb_card_bag tcb
+        inner join
+        tb_recharge_card trc
+        on tcb.card_id = trc.id
+        WHERE
+        trc.obtain_type = 0
+        AND trc.type = #{type}
+        AND tcb.user_id = #{userId}
+        and trc.valid= 1
+        AND tcb.valid =1
+        ORDER BY tcb.end_time DESC
+    </select>
+</mapper>

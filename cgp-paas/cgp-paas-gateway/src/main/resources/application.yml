@@ -1,0 +1,77 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: cgp-paas-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.0.113:8848 # 将gateway注册到nacos
+    gateway:
+      discovery:
+        locator:
+          enabled: true # 让gateway从nacos中获取服务信息
+      httpclient:
+        pool:
+          max-idle-time: PT15S
+      #需要拦截的项目
+      routes:
+        - id: cgp-paas-admin  
+          uri: lb://cgp-paas-admin 
+          predicates:
+            - Path=/cgp-paas-admin/**
+            
+        - id: cgp-paas-authentication
+          uri: lb://cgp-paas-authentication 
+          predicates:
+            - Path=/cgp-paas-authentication/**
+            
+        - id: cgp-paas-logs
+          uri: lb://cgp-paas-logs
+          predicates:
+            - Path=/cgp-paas-logs/**
+            
+        - id: cgp-paas-message
+          uri: lb:ws://cgp-paas-message
+          predicates:
+            - Path=/cgp-paas-message/**
+            
+        - id: cgp-paas-meterage
+          uri: lb://cgp-paas-meterage
+          predicates:
+            - Path=/cgp-paas-meterage/**
+            
+        - id: cgp-paas-open
+          uri: lb://cgp-paas-open
+          predicates:
+            - Path=/cgp-paas-open/**
+            
+        - id: cgp-paas-resource
+          uri: lb://cgp-paas-resource
+          predicates:
+            - Path=/cgp-paas-resource/**
+            
+        - id: cgp-paas-schedule
+          uri: lb://cgp-paas-schedule
+          predicates:
+            - Path=/cgp-paas-schedule/**
+
+
+#日志
+logging:
+  level:
+    com.ydw.gateway: debug
+    
+feign:
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+
+#直接开放的api
+cgp:
+  openUrls:
+    - /cgp-paas-authentication/**
+    - /cgp-paas-logs/**
+    - /cgp-paas-message/**
+    - /cgp-paas-open/**

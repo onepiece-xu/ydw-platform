@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.ClusterOwnerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.ClusterOwner">
+        <id column="id" property="id"/>
+        <result column="cluster_id" property="clusterId"/>
+        <result column="owner_id" property="ownerId"/>
+        <result column="valid" property="valid"/>
+    </resultMap>
+
+    <select id="getOwnerByCluster" resultType="String">
+    SELECT owner_id from cluster_owner where cluster_id=#{id} and valid =true
+    </select>
+
+    <select id="getClusterByUser" resultType="String">
+    SELECT cluster_id from cluster_owner where owner_id=#{id} and valid =true
+    </select>
+</mapper>

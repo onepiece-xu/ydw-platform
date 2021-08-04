@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.resource.dao.DeviceUsedMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.resource.model.db.DeviceUsed">
+        <id column="id" property="id" />
+        <result column="device_id" property="deviceId" />
+        <result column="app_id" property="appId" />
+        <result column="enterprise_id" property="enterpriseId" />
+        <result column="custom_id" property="customId" />
+        <result column="from_ip" property="fromIp" />
+        <result column="type" property="type" />
+        <result column="saas" property="saas" />
+        <result column="begin_time" property="beginTime" />
+        <result column="end_time" property="endTime" />
+        <result column="total_time" property="totalTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.recharge.dao.CouponCardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.recharge.model.db.CouponCard">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="description" property="description" />
+        <result column="promotion_type" property="promotionType" />
+        <result column="recharge_card_id" property="rechargeCardId" />
+        <result column="obtain_type" property="obtainType" />
+        <result column="validity_type" property="validityType" />
+        <result column="drawable_num" property="drawableNum" />
+        <result column="drawed_num" property="drawedNum" />
+        <result column="user_drawable_num" property="userDrawableNum" />
+        <result column="discount" property="discount" />
+        <result column="reduction" property="reduction" />
+        <result column="duration" property="duration" />
+        <result column="valid_begin_time" property="validBeginTime" />
+        <result column="valid_end_time" property="validEndTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+</mapper>

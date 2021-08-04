@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.recharge.dao.WithdrawRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.recharge.model.db.WithdrawRecord">
+        <id column="id" property="id" />
+        <result column="payee" property="payee" />
+        <result column="pay_id" property="payId" />
+        <result column="withdraw_amount" property="withdrawAmount" />
+        <result column="status" property="status" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <select id="getUserWithdrawRecord" resultType="com.ydw.recharge.model.vo.WithdrawVO">
+        SELECT
+            wr.create_time createTime,
+            wr.withdraw_amount withdrawAmount,
+            wr.status,
+            up.pay_account payAccount
+        FROM
+            withdraw_record wr
+        LEFT JOIN user_pay up ON wr.pay_id = up.id
+        WHERE
+            wr.payee = #{userId}
+    </select>
+    <select id="getUserWithdrawSummary" resultType="com.ydw.recharge.model.vo.WithdrawSummary">
+        SELECT
+            count(1) withdrawNum,
+            ifnull(sum(wr.withdraw_amount),0) withdrawSum
+        FROM
+            withdraw_record wr
+        WHERE
+            wr.payee = #{userId}
+            and wr.status = 2
+    </select>
+
+</mapper>

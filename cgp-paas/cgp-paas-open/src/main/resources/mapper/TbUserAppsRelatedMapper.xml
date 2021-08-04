@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.open.dao.TbUserAppsRelatedMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.open.model.db.TbUserAppsRelated">
+        <id column="id" property="id" />
+        <result column="app_id" property="appId" />
+        <result column="enterprise_id" property="enterpriseId" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="AppUseApproveVO" type="com.ydw.open.model.vo.AppUseApproveVO"></resultMap>
+
+    <select id="getAppApproveList" resultMap="AppUseApproveVO">
+        SELECT
+	tar.*,
+	tui.enterprise_name AS userName,
+	tua.NAME AS appName,
+	tua.size as size,
+	tua.real_size as realSize,
+	tua.type as type
+FROM
+	tb_user_apps_related tar,
+	tb_user_apps tua,
+	tb_user_info tui
+WHERE
+	tar.app_id = tua.id
+	AND tui.identification = tar.enterprise_id
+		and tar.valid =0
+		<if test="search!=null">
+			and tui.enterprise_name LIKE CONCAT('%', #{search}, '%')
+		</if>
+    </select>
+	<select id="getAppApproved"  resultMap="AppUseApproveVO">
+
+
+	  SELECT
+	tar.*,
+	tui.enterprise_name AS userName,
+	tua.NAME AS appName,
+	tua.size as size,
+	tua.real_size as realSize,
+	tua.type as type
+FROM
+	tb_user_apps_related tar,
+	tb_user_apps tua,
+	tb_user_info tui
+WHERE
+	tar.app_id = tua.id
+	AND tui.identification = tar.enterprise_id
+		AND tar.valid =1
+				and tui.identification=#{id}
+		<if test="search!=null">
+			and tui.enterprise_name LIKE CONCAT('%', #{search}, '%')
+		</if>
+	</select>
+
+    <select id="getAppApproves" resultMap="AppUseApproveVO">
+            SELECT
+	tar.*,
+	tui.enterprise_name AS userName,
+	tua.NAME AS appName,
+	tua.size as size,
+	tua.real_size as realSize,
+	tua.type as type
+FROM
+	tb_user_apps_related tar,
+	tb_user_apps tua,
+	tb_user_info tui
+WHERE
+	tar.app_id = tua.id
+	AND tui.identification = tar.enterprise_id
+	and  tui.identification=#{id}
+    </select>
+
+
+
+    <select id="getRelatedIdByAppIdAndEnterpriseId" resultType="Integer">
+      	SELECT id FROM tb_user_apps_related WHERE app_id=#{appId} and enterprise_id=#{enterpriseId}
+    </select>
+	<resultMap id="App" type="com.ydw.open.model.vo.App"></resultMap>
+
+	<select id="getOwnerAppList" resultMap="App">
+
+
+		SELECT
+			tua.id,
+			tua.NAME,
+			tua.access_id,
+			tua.description,
+			tua.upload_time AS create_time,
+			tua.type
+		FROM
+			tb_user_apps tua,
+			tb_user_apps_related tuar
+		WHERE
+			tuar.app_id = tua.id
+			AND tuar.valid = TRUE
+		AND tuar.enterprise_id = #{id}
+
+	</select>
+	<select id="getGameListApproved"  resultMap="AppUseApproveVO">
+		SELECT
+	tar.*,
+	tui.enterprise_name AS userName,
+	tua.NAME AS appName,
+	tua.size AS size,
+	tua.real_size AS realSize,
+	tua.type AS type
+FROM
+	tb_user_apps_related tar,
+	tb_user_apps tua,
+	tb_user_info tui
+WHERE
+	tar.app_id = tua.id
+	AND tui.identification = tar.enterprise_id
+
+	AND tar.valid =1
+	<if  test="enterpriseId !=null" >
+		AND tui.identification =#{enterpriseId}
+	</if>
+		<if test="search!=null">
+			and tui.enterprise_name LIKE CONCAT('%', #{search}, '%')
+		</if>
+	</select>
+</mapper>

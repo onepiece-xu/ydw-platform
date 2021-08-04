@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.BannerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.Banner">
+        <id column="id" property="id" />
+        <result column="description" property="description" />
+        <result column="pic_path" property="picPath" />
+        <result column="access_path" property="accessPath" />
+        <result column="order_num" property="orderNum" />
+        <result column="valid" property="valid" />
+        <result column="del_path" property="del_path" />
+        <result column="platform" property="platform" />
+    </resultMap>
+
+    <select id="getBanners" resultMap="BaseResultMap">
+        SELECT * FROM `banner` where valid =true  ORDER BY order_num asc
+    </select>
+
+    <select id="getByOrderNumber" resultMap="BaseResultMap">
+        SELECT* FROM banner tb WHERE tb.order_num=#{orderNumber}
+    </select>
+</mapper>

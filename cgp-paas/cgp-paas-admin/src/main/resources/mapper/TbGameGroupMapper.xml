@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbGameGroupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbGameGroup">
+        <id column="id" property="id" />
+        <result column="gamegroup_id" property="gamegroupId" />
+        <result column="game_id" property="gameId" />
+        <result column="game_order" property="gameOrder" />
+        <result column="weight1" property="weight1" />
+        <result column="weight2" property="weight2" />
+        <result column="weight3" property="weight3" />
+    </resultMap>
+    <resultMap id="AppsConnectionsVO" type="com.ydw.user.model.vo.AppsConnectionsVO">
+        <result column="app_name" property="appName"/>
+        <result column="app_id" property="appId"/>
+        <result column="count" property="count"/>
+    </resultMap>
+    <resultMap id="AppTagVO" type="com.ydw.user.model.vo.AppTagVO"></resultMap>
+    <select id="getAppIdsByGameGroupId" resultMap="BaseResultMap">
+      SELECT * from tb_game_group tgg  WHERE  tgg.gamegroup_id= #{id}  ORDER BY tgg.game_order ASC
+    </select>
+
+    <select id="getAppsConnectTimeStatisticsTopTen" resultMap="AppsConnectionsVO">
+        SELECT
+        tdu.app_id AS app_id,
+        tua.`name` AS app_name,
+        sum( tdu.total_time ) /60/60  AS count,
+        CONCAT(
+        CAST(
+        CONVERT (
+        100 * CAST( sum( tdu.total_time ) AS DECIMAL ) / CAST(( SELECT sum( tdu.total_time ) FROM tb_device_used tdu WHERE tdu.valid = TRUE
+        ) AS DECIMAL ),
+        DECIMAL
+        ) AS CHAR
+        ),
+        '%'
+        ) AS percentage
+        FROM
+        tb_device_used tdu,
+        tb_user_apps tua,
+        tb_clusters tc,
+        tb_devices td
+        WHERE
+        tua.id = tdu.app_id
+        AND tdu.device_id = td.id
+        AND td.cluster_id = tc.id
+
+
+
+        <if test="startTime != null  and  endTime!=null ">
+            AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        GROUP BY
+        tdu.app_id
+        ORDER BY  count DESC
+    </select>
+
+
+    <select id="getAppsConnectionsStatisticsTopTen" resultMap="AppsConnectionsVO">
+        SELECT
+        tdu.app_id AS app_id,
+        tua.`name` AS app_name,
+        count( tdu.app_id ) AS count,
+        ( count( tdu.app_id )/(
+        SELECT
+        COUNT(*)
+        FROM
+        tb_device_used tdu
+        WHERE
+        tdu.valid = TRUE
+
+        <if test="startTime != null  and  endTime!=null ">
+            AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        )
+        ) AS percentage
+        FROM
+        tb_device_used tdu,
+        tb_user_apps tua,
+        tb_clusters tc,
+        tb_devices td
+        WHERE
+        tua.id = tdu.app_id
+        AND tdu.device_id = td.id
+        AND td.cluster_id = tc.id
+
+
+        <if test="startTime != null  and  endTime!=null ">
+            AND (	(DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime} AND date #{endTime}) OR
+            (DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date#{startTime} AND date #{endTime} )  OR
+            (DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date #{startTime} ) AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime})
+            )
+        </if>
+        GROUP BY
+        tdu.app_id
+      ORDER BY count DESC
+    </select>
+
+    <select id="getNewGameList"  resultMap="AppTagVO">
+SELECT  tua.id as appId ,tua.upload_time as uploadTime ,tua.name as appName, tua.description as description  from tb_user_apps tua WHERE tua.valid =true ORDER BY tua.upload_time DESC
+    </select>
+</mapper>

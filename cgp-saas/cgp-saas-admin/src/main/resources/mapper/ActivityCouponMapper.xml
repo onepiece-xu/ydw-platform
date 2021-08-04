@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.ActivityCouponMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.ActivityCoupon">
+        <id column="id" property="id" />
+        <result column="coupon_id" property="couponId" />
+        <result column="activity_id" property="activityId" />
+    </resultMap>
+    <resultMap id="CouponCard" type="com.ydw.admin.model.db.CouponCard"></resultMap>
+
+    <select id="getCouponByActivityId" resultMap="CouponCard">
+SELECT
+	tc.*
+FROM
+	`activity_coupon` ac,
+	tb_coupon_card tc
+WHERE
+	ac.coupon_id = tc.id
+	AND ac.activity_id = #{id}
+    </select>
+
+    <select id="getBindCoupon" resultMap="CouponCard">
+        SELECT tcc.* from tb_coupon_card tcc ,activity_coupon ac WHERE ac.coupon_id=tcc.id and ac.activity_id = #{id}
+    </select>
+    <select id="getUnbindCoupon" resultMap="CouponCard">
+     SELECT
+	tcc.*
+FROM
+	tb_coupon_card tcc
+WHERE	 valid = 1
+	AND tcc.id NOT IN ( SELECT tcc.id FROM tb_coupon_card tcc, activity_coupon ac WHERE ac.coupon_id = tcc.id AND ac.activity_id = #{id} )
+    </select>
+</mapper>

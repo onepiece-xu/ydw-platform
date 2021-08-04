@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.NetBarInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.NetBarInfo">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="description" property="description" />
+        <result column="location" property="location" />
+        <result column="logo_pic" property="logoPic" />
+        <result column="province" property="province" />
+        <result column="city" property="city" />
+        <result column="district" property="district" />
+        <result column="special_service" property="specialService" />
+        <result column="base_station" property="baseStation" />
+        <result column="business_hours" property="businessHours" />
+        <result column="match_station" property="matchStation" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="NetbarInfoVO" type="com.ydw.platform.model.vo.NetbarInfoVO"></resultMap>
+    <resultMap id="NetbarListVO" type="com.ydw.platform.model.vo.NetbarListVO"></resultMap>
+    <resultMap id="BaseInfo" type="com.ydw.platform.model.vo.BaseInfo"></resultMap>
+    <resultMap id="NetbarListAppVO" type="com.ydw.platform.model.vo.NetbarListAppVO"></resultMap>
+
+
+    <select id="getNetBarListAndroid" resultMap="NetbarListAppVO">
+        SELECT DISTINCT
+        nbi.*,cn.cluster_id
+        FROM
+        net_bar_info nbi,
+        cluster_netbar cn
+        WHERE
+        cn.netbar_id = nbi.id
+        AND cn.cluster_id IS TRUE
+        AND nbi.valid = TRUE
+
+        <if test="province != null">
+            and nbi.province=#{province}
+        </if>
+        <if test="city != null">
+            and nbi.city=#{city}
+        </if>
+        <if test="district != null">
+            and nbi.district=#{district}
+        </if>
+        <if test="name != null">
+            and nbi.name  LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="identification != null">
+            and nbi.identification =#{identification}
+        </if>
+    </select>
+
+
+    <select id="getNetBarList" resultMap="NetbarInfoVO">
+        SELECT DISTINCT
+        nbi.*
+        FROM
+        net_bar_info nbi,
+        cluster_netbar cn
+        WHERE
+        cn.netbar_id = nbi.id
+        AND cn.cluster_id IS TRUE
+        AND nbi.valid = TRUE
+
+        <if test="province != null">
+            and nbi.province=#{province}
+        </if>
+        <if test="city != null">
+            and nbi.city=#{city}
+        </if>
+        <if test="district != null">
+            and nbi.district=#{district}
+        </if>
+        <if test="name != null">
+            and nbi.name  LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="identification != null">
+            and nbi.identification =#{identification}
+        </if>
+        </select>
+
+    <select id="getAllNetBarList" resultMap="NetbarListVO">
+SELECT
+	*
+FROM
+	(
+	SELECT
+		nbi.*,
+		tc.id cluster_id,
+		tc.NAME AS cluster_name
+	FROM
+		net_bar_info nbi
+
+		LEFT JOIN cluster_netbar cn ON cn.netbar_id = nbi.id
+		LEFT JOIN tb_clusters tc ON tc.id = cn.cluster_id
+	) A
+WHERE
+	A.valid =1 	and A.cluster_id is true
+
+    </select>
+
+    <select id="getBaseStation" resultMap="BaseInfo">
+
+        SELECT*FROM netbar_baseStation WHERE valid =1
+    </select>
+    <select id="getMatchStation" resultMap="BaseInfo">
+		SELECT*FROM netbar_matchStation WHERE valid =1
+    </select>
+    <resultMap id="NetbarClusterVO" type="com.ydw.platform.model.vo.NetbarClusterVO"></resultMap>
+    <select id="getNetbarClusterIds" resultMap="NetbarClusterVO">
+        SELECT cn.cluster_id,nbi.id as netbar_id
+        FROM
+        net_bar_info nbi,
+        cluster_netbar cn
+        WHERE
+        cn.netbar_id = nbi.id
+        AND cn.cluster_id IS TRUE
+        AND nbi.valid = TRUE
+
+        <if test="province != null">
+            and nbi.province=#{province}
+        </if>
+        <if test="city != null">
+            and nbi.city=#{city}
+        </if>
+        <if test="district != null">
+            and nbi.district=#{district}
+        </if>
+        <if test="name != null">
+            and nbi.name  LIKE CONCAT('%', #{name}, '%')
+        </if>
+    </select>
+</mapper>

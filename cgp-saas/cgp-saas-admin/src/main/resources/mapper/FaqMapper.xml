@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.FaqMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.Faq">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="time" property="time" />
+        <result column="content" property="content" />
+        <result column="valid" property="valid" />
+        <result column="order_number" property="orderNumber" />
+    </resultMap>
+
+</mapper>

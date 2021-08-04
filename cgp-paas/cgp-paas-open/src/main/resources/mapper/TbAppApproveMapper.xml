@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.open.dao.TbAppApproveMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.open.model.db.TbAppApprove">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="english_name" property="englishName" />
+        <result column="game_maker" property="gameMaker" />
+        <result column="game_publisher" property="gamePublisher" />
+        <result column="game_type" property="gameType" />
+        <result column="cooperation_type" property="cooperationType" />
+        <result column="auth_period" property="authPeriod" />
+        <result column="package_file_name" property="packageFileName" />
+        <result column="package_name" property="packageName" />
+        <result column="size" property="size" />
+        <result column="real_size" property="realSize" />
+        <result column="type" property="type" />
+        <result column="account_path" property="accountPath" />
+        <result column="data_path" property="dataPath" />
+        <result column="description" property="description" />
+        <result column="package_path" property="packagePath" />
+        <result column="insure_pic" property="insurePic" />
+        <result column="has_access_id" property="hasAccessId" />
+        <result column="access_id" property="accessId" />
+        <result column="status" property="status" />
+        <result column="valid" property="valid" />
+        <result column="create_time" property="createTime" />
+        <result column="modified_time" property="modifiedTime" />
+        <result column="access_id_pic" property="accessIdPic" />
+        <result column="identification" property="identification" />
+        <result column="sch_install" property="schInstall" />
+        <result column="install_max_number" property="installMaxNumber" />
+        <result column="result" property="result" />
+        <result column="screen" property="screen" />
+        <result column="show_time" property="showTime" />
+        <result column="has_page" property="hasPage" />
+        <result column="region" property="region" />
+
+        <result column="page" property="page" />
+    </resultMap>
+
+    <resultMap id="gameTypeVO" type="com.ydw.open.model.db.TbGameType">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="tag" property="tag" />
+    </resultMap>
+
+    <resultMap id="ClusterInfo" type="com.ydw.open.model.vo.ClusterVO"></resultMap>
+
+
+    <select id="getClusterInfo" resultMap="ClusterInfo">
+
+    SELECT  t.`name`,t.id from tb_clusters t WHERE valid=1 and type =1
+
+    </select>
+    <select id="getList" resultMap="BaseResultMap">
+        SELECT * FROM tb_app_approve  taa where taa.valid=true and status in(0,1,2,3,4)
+        <if test="identification != null">
+            and taa.identification= #{identification}
+        </if>
+        <if test="status != null">
+            AND taa.status=#{status}
+        </if>
+        <if test="cooperationType != null">
+            AND taa.cooperation_type=#{cooperationType}
+        </if>
+        <if test="search != null">
+            AND taa.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+
+    </select>
+
+    <select id="getAppApprove" resultMap="BaseResultMap">
+        SELECT * FROM tb_app_approve  taa where taa.id=#{id} and  taa.valid=true
+    </select>
+
+    <update id="updateSelective" parameterType="com.ydw.open.model.db.TbAppApprove">
+        UPDATE tb_app_approve
+            <set>
+
+                <!--<if test="name != null">-->
+                    <!--`name`=#{name},-->
+                <!--</if>-->
+                <!--<if test="englishName != null">-->
+                    <!--english_name=#{englishName},-->
+                <!--</if>-->
+
+                <!--<if test="gameMaker != null">-->
+                    <!--game_maker= #{gameMaker},-->
+                <!--</if>-->
+                <!--<if test="gamePublisher != null">-->
+                    <!--game_publisher= #{gamePublisher},-->
+                <!--</if>-->
+                <!--<if test="gameType != null">-->
+                    <!--game_type= #{gameType},-->
+                <!--</if>-->
+                <!--<if test="cooperationType != null">-->
+                    <!--cooperation_type= #{cooperationType},-->
+                <!--</if>-->
+                <!--<if test="authPeriod != null">-->
+                    <!--auth_period= #{authPeriod},-->
+                <!--</if>-->
+                <!--<if test="packageFileName != null">-->
+                    <!--package_file_name= #{packageFileName},-->
+                <!--</if>-->
+                <!--<if test="packageName != null">-->
+                    <!--package_name= #{packageName},-->
+                <!--</if>-->
+                <!--<if test="size != null">-->
+                    <!--`size`= #{size},-->
+                <!--</if>-->
+                <!--<if test="realSize != null">-->
+                    <!--real_size= #{realSize},-->
+                <!--</if>-->
+
+                <!--<if test="type != null">-->
+                    <!--`type`= #{type},-->
+                <!--</if>-->
+
+                <!--<if test="accountPath != null">-->
+                    <!--account_path= #{accountPath},-->
+                <!--</if>-->
+                <!--<if test="dataPath != null">-->
+                    <!--data_path= #{dataPath},-->
+                <!--</if>-->
+
+                <!--<if test="description != null">-->
+                    <!--description=#{description},-->
+                <!--</if>-->
+                <!--<if test="packagePath != null">-->
+                    <!--package_path=#{packagePath},-->
+                <!--</if>-->
+                <!--<if test="insurePic != null">-->
+                    <!--insure_pic= #{insurePic},-->
+                <!--</if>-->
+
+                <!--has_access_id= #{hasAccessId},-->
+
+
+                <!--access_id=#{accessId},-->
+
+
+                <!--access_id_pic= #{accessIdPic},-->
+
+                <!--<if test="status != null">-->
+                    <!--status= #{status},-->
+                <!--</if>-->
+                <!--<if test="valid != null">-->
+                    <!--valid= #{valid},-->
+                <!--</if>-->
+                <!--<if test="createTime != null">-->
+                    <!--create_time= #{createTime},-->
+                <!--</if>-->
+                <!--<if test="modifiedTime != null">-->
+                    <!--modified_time= #{modifiedTime},-->
+                <!--</if>-->
+                <!--<if test="status != null">-->
+                    <!--status= #{status}-->
+                <!--</if>-->
+
+                `name`=#{name},
+
+                english_name=#{englishName},
+
+                game_maker= #{gameMaker},
+
+                game_publisher= #{gamePublisher},
+
+
+                game_type= #{gameType},
+
+                cooperation_type= #{cooperationType},
+
+                auth_period= #{authPeriod},
+
+                package_file_name= #{packageFileName},
+
+                package_name= #{packageName},
+
+                `size`= #{size},
+
+                real_size= #{realSize},
+
+                `type`= #{type},
+
+                account_path= #{accountPath},
+
+                data_path= #{dataPath},
+
+                description=#{description},
+
+                package_path=#{packagePath},
+
+                insure_pic= #{insurePic},
+
+                screen=#{screen},
+
+                has_access_id= #{hasAccessId},
+
+                access_id=#{accessId},
+
+                access_id_pic= #{accessIdPic},
+
+                identification= #{identification},
+
+                sch_install=#{schInstall},
+
+                install_max_number=#{installMaxNumber},
+
+                show_time=#{showTime},
+
+                has_page=#{hasPage},
+
+                region=#{region},
+
+                page=#{page},
+                <if test="status != null">
+                status= #{status},
+                </if>
+                <if test="valid != null">
+                valid= #{valid},
+                </if>
+                <if test="createTime != null">
+                create_time= #{createTime},
+                </if>
+                <if test="modifiedTime != null">
+                modified_time= #{modifiedTime},
+                </if>
+                <if test="status != null">
+                status= #{status}
+                </if>
+            </set>
+        where id=#{id}
+
+    </update>
+
+
+    <select id="getGameType"  resultMap="gameTypeVO">
+        SELECT * from tb_game_type
+    </select>
+
+</mapper>

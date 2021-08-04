@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.RechargeCardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.RechargeCard">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="expect_cost" property="expectCost" />
+        <result column="final_cost" property="finalCost" />
+        <result column="description" property="description" />
+        <result column="description1" property="description1" />
+        <result column="type" property="type" />
+        <result column="obtain_type" property="obtainType" />
+        <result column="duration" property="duration" />
+        <result column="validity_time" property="validityTime" />
+        <result column="begin_period" property="beginPeriod" />
+        <result column="end_period" property="endPeriod" />
+        <result column="create_time" property="createTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+</mapper>

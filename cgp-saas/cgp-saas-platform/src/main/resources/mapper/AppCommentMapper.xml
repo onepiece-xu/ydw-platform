@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.AppCommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.AppComment">
+        <id column="id" property="id" />
+        <result column="app_id" property="appId" />
+        <result column="owner_id" property="ownerId" />
+        <result column="comment" property="comment" />
+        <result column="thumb" property="thumb" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="liked" property="liked" />
+        <result column="reported" property="reported" />
+        <result column="approved" property="approved" />
+    </resultMap>
+    <resultMap id="AppCommentVO" type="com.ydw.platform.model.vo.AppCommentVO"></resultMap>
+    <!--<update id="addThumb" parameterType="Integer">-->
+        <!--update app_comment set thumb=thumb+1 where id = #{id}-->
+    <!--</update>-->
+    <!--<update id="cancelThumb" parameterType="Integer">-->
+        <!--update app_comment set thumb=thumb-1 where id = #{id}-->
+    <!--</update>-->
+    <select id="getAppCommentList" resultMap="AppCommentVO">
+        select  ui.nickname as nickName ,ui.avatar as image,ac.id, ac.app_id,ac.owner_id,ac.comment,ac.thumb,ac.status,ac.create_time,ac.liked,ac.reported,
+        ac.approved
+        from app_comment  ac,user_info ui  WHERE  ui.id = ac.owner_id and app_id= #{appId} and ac.status = 1
+        and ( ac.approved=  1 or ac.approved=  0
+        <if test="userId != null">
+        and ac.owner_id= #{userId}
+        </if>  )
+        order by ac.create_time DESC
+    </select>
+</mapper>

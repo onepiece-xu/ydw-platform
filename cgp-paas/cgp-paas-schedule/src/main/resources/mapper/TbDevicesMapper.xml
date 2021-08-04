@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.schedule.dao.TbDevicesMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.schedule.model.db.TbDevices">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="base_id" property="baseId" />
+        <result column="cluster_id" property="clusterId" />
+        <result column="idc" property="idc" />
+        <result column="cabinet" property="cabinet" />
+        <result column="location" property="location" />
+        <result column="slot" property="slot" />
+        <result column="manager_ip" property="managerIp" />
+        <result column="manager_port" property="managerPort" />
+        <result column="inner_ip" property="innerIp" />
+        <result column="inner_port" property="innerPort" />
+        <result column="ip" property="ip" />
+        <result column="port" property="port" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="used_space" property="usedSpace" />
+        <result column="free_space" property="freeSpace" />
+        <result column="inner_mac" property="innerMac" />
+        <result column="description" property="description" />
+        <result column="sch_status" property="schStatus" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+</mapper>

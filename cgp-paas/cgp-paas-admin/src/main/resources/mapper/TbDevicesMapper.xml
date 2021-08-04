@@ -1,0 +1,867 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbDevicesMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbDevices">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="base_id" property="baseId" />
+        <result column="cluster_id" property="clusterId" />
+        <result column="idc" property="idc" />
+        <result column="cabinet" property="cabinet" />
+        <result column="location" property="location" />
+        <result column="slot" property="slot" />
+        <result column="manager_ip" property="managerIp" />
+        <result column="manager_port" property="managerPort" />
+        <result column="inner_ip" property="innerIp" />
+        <result column="inner_port" property="innerPort" />
+        <result column="ip" property="ip" />
+        <result column="port" property="port" />
+        <result column="adb_port" property="adbPort" />
+        <result column="adb_ip" property="adbIp" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="used_space" property="usedSpace" />
+        <result column="free_space" property="freeSpace" />
+        <result column="inner_mac" property="innerMac" />
+        <result column="description" property="description" />
+        <result column="sch_status" property="schStatus" />
+        <result column="init" property="init"/>
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="UsageTrendVO" type="com.ydw.user.model.vo.UsageTrendVO">
+
+    </resultMap>
+
+
+    <resultMap id="AppDevicesVOResultMap" type="com.ydw.user.model.vo.AppDevicesVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="ip" property="ip"/>
+        <result column="group_name" property="groupName"/>
+        <result column="cluster_name" property="clusterName"/>
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.ydw.user.model.vo.DeviceVO">
+    </resultMap>
+
+    <resultMap id="AppDeviceCountVO" type="com.ydw.user.model.vo.AppDeviceCountVO">
+    </resultMap>
+
+    <resultMap id="ClusterDevicesStatusVO" type="com.ydw.user.model.vo.ClusterDevicesStatusVO">
+    </resultMap>
+
+    <resultMap id="DeviceBaseResultMap" type="com.ydw.user.model.db.TbDeviceBase">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="model" property="model" />
+        <result column="cpu" property="cpu" />
+        <result column="cpu_number" property="cpuNumber" />
+        <result column="cpu_slot" property="cpuSlot" />
+        <result column="memory_model" property="memoryModel" />
+        <result column="memory" property="memory" />
+        <result column="memory_slot" property="memorySlot" />
+        <result column="graphics" property="graphics" />
+        <result column="disk_model" property="diskModel" />
+        <result column="disk_size" property="diskSize" />
+        <result column="network_card" property="networkCard" />
+        <result column="status" property="status" />
+
+    </resultMap>
+
+    <resultMap id="DeviceStatusCountVO" type="com.ydw.user.model.vo.DeviceStatusCountVO">
+        <result column="status" property="status"/>
+        <result column="count" property="count"/>
+        <result column="percentage" property="percentage"/>
+    </resultMap>
+
+    <resultMap id="DeviceUsageCountHistoryVO" type="com.ydw.user.model.vo.DeviceUsageCountHistoryVO">
+        <result column="totalTime" property="totalTime"/>
+        <result column="cluster_name" property="clusterName"/>
+        <result column="deviceCount" property="deviceCount"/>
+        <result column="device_usage" property="deviceUsage"/>
+    </resultMap>
+
+
+    <resultMap id="DeviceUsageCountVO" type="com.ydw.user.model.vo.DeviceUsageCountVO">
+        <result column="cluster_name" property="clusterName"/>
+        <result column="connectCount" property="connectCount"/>
+        <result column="deviceCount" property="deviceCount"/>
+        <result column="percentage" property="percentage"/>
+    </resultMap>
+
+
+    <select id="getDeviceBases" parameterType="java.lang.String"
+            resultMap="DeviceBaseResultMap">
+		SELECT * FROM tb_device_base WHERE  valid=true
+
+	</select>
+
+    <select id="getAddDevices" resultMap="VoResultMap">
+        SELECT DISTINCT
+        td.*,tc.NAME AS cluster_name
+        FROM
+        tb_devices td,
+        tb_clusters tc,
+        tb_device_group tdg
+        WHERE
+        td.valid = TRUE
+        AND tdg.valid = TRUE
+        AND td.cluster_id = tc.id
+        AND tdg.id = #{groupId}
+        <if test="clusterId!=null">
+            and tc.id=#{clusterId}
+        </if>
+        AND td.id NOT IN (
+        SELECT
+        tdgr.device_id AS id
+        FROM
+        tb_device_group_related tdgr
+        WHERE
+        tdgr.valid = TRUE
+        and tdgr.group_id =#{groupId}
+        )
+
+    </select>
+
+
+    <select id="getDevicesVoByClusterId" parameterType="java.lang.String"
+            resultMap="VoResultMap">
+        SELECT
+        td.*,
+        tdb.type AS base_type,
+        tdb.NAME AS base_name,
+        tc.NAME AS cluster_name
+        FROM
+        tb_devices td,
+        tb_clusters tc,
+        tb_device_base tdb
+        WHERE
+        td.valid = TRUE
+        AND td.base_id = tdb.id
+        AND tc.id = td.cluster_id
+
+        <if test="id!=null">
+            and td.`id` =#{id}
+        </if>
+        <if test="name!=null">
+            and td.`name` =#{name}
+        </if>
+        <if test="baseType!=null">
+            and tdb.type=#{baseType}
+        </if>
+        <if test="clusterId!=null">
+            and td.cluster_id=#{clusterId}
+        </if>
+
+        <if test="idc!=null">
+            and td.idc=#{idc}
+        </if>
+        <if test="cabinet!=null">
+            and td.cabinet=#{cabinet}
+        </if>
+        <if test="location!=null">
+            and td.location=#{location}
+        </if>
+        <if test="slot!=null">
+            and td.slot=#{slot}
+        </if>
+
+        <if test="managerIp!=null">
+            and td.manager_ip=#{managerIp}
+        </if>
+        <if test="managerPort!=null">
+            and td.manager_port=#{managerPort}
+        </if>
+        <if test="innerIp!=null">
+            and td.inner_ip=#{innerIp}
+        </if>
+        <if test="innerPort!=null">
+            and td.inner_port=#{innerPort}
+        </if>
+        <if test="ip!=null">
+            and td.ip=#{ip}
+        </if>
+        <if test="port!=null">
+            and td.port=#{port}
+        </if>
+        <if test="status!=null">
+            and td.status=#{status}
+        </if>
+        <if test="schStatus!=null">
+            and td.sch_status=#{schStatus}
+        </if>
+        <if test="search!=null">
+            AND CONCAT( td.`name`,td.ip ) LIKE CONCAT ('%', #{search},'%')
+        </if>
+        ORDER BY td.create_time desc
+    </select>
+
+    <select id="selectByDeviceId" parameterType="java.lang.String"
+            resultMap="VoResultMap">
+	SELECT
+	td.*,
+	tdb.`name` AS base_name,
+	tdb.type AS base_type,
+	tdb.cpu AS cpu,
+	tdb.model AS model,
+	tdb.cpu_number AS cpu_number,
+	tdb.cpu_slot AS cpu_slot,
+	tdb.memory_model AS memory_model,
+	tdb.memory AS memory,
+	tdb.memory_slot AS memory_slot,
+	tdb.graphics AS graphics,
+	tdb.disk_model AS disk_model,
+	tdb.disk_size AS disk_size,
+	tdb.network_card AS network_card,
+
+	tc.NAME AS cluster_name
+FROM
+	tb_devices td,
+	tb_device_base tdb,
+
+	tb_clusters tc
+WHERE
+	td.id = #{id}
+    AND td.cluster_id = tc.id
+	AND td.base_id = tdb.id
+
+
+	AND td.valid = TRUE
+ORDER BY
+	td.create_time
+	</select>
+
+    <select id="getInstallDevicesByAppId" parameterType="java.lang.String"
+            resultMap="AppDevicesVOResultMap">
+
+        SELECT
+        td.id AS id,
+        td.NAME AS name,
+        tc.`name` AS cluster_name,
+
+        td.inner_ip  AS ip
+        FROM
+        tb_devices td,
+        tb_clusters tc,
+        tb_user_apps tua,
+        tb_device_base tda
+
+        WHERE
+        (
+        SELECT
+        count( 1 )
+        FROM
+        (
+        SELECT
+        td.id,
+        td.NAME,
+        td.ip,
+        tc.`name` AS cluster_name
+
+        FROM
+        tb_device_apps tda,
+        tb_devices td,
+        tb_user_apps tua,
+
+        tb_clusters tc,
+        tb_device_base tdb
+        WHERE
+        tua.id = #{appId}
+
+        AND tua.id = tda.app_id
+        AND td.id = tda.device_id
+
+        AND tc.id = td.cluster_id
+        AND tua.id = tda.app_id
+        AND tda.device_id = td.id
+
+        AND tc.sch_status = TRUE
+
+        AND td.valid = TRUE
+        AND tda.valid = TRUE
+        and tdb.id=td.base_id
+        and tdb.type =tua.type
+        ) A
+        WHERE
+        A.id = td.id
+        ) = 0
+        AND td.valid = TRUE
+        AND td.cluster_id = tc.id
+
+        and td.status=1
+        and td.sch_status=FALSE
+        and td.base_id=tda.id
+
+        and tua.id= #{appId}
+        <if test="type==3">
+            and tda.type=1
+        </if>
+        <if test="type==4">
+            and tda.type=0
+        </if>
+        <if test="type==1 or type== 0">
+            AND tda.type = tua.type
+        </if>
+
+        <if test="clusterId!=null">
+        and tc.id = #{clusterId}
+        </if>
+
+        ORDER BY td.create_time
+    </select>
+
+    <select id="getUninstallDevicesByAppId" parameterType="java.lang.String"
+            resultMap="AppDevicesVOResultMap">
+        SELECT DISTINCT
+        td.id,
+        td.NAME,
+        td.inner_ip as ip,
+        tc.`name` AS cluster_name
+        FROM
+        tb_device_apps tda,
+        tb_devices td,
+        tb_user_apps tua,
+        tb_clusters tc,
+
+        tb_device_base tdb
+        WHERE
+        tua.id = #{appId}
+
+        AND tua.id = tda.app_id
+        AND tda.device_id = td.id
+        AND tc.id = td.cluster_id
+
+
+
+        AND tc.sch_status = TRUE
+        AND td.valid = TRUE
+
+        AND tda.valid = true
+        AND td.STATUS = 1
+        AND td.sch_status = FALSE
+        and tdb.id=td.base_id
+        and tdb.type =tua.type
+        <if test="clusterId!=null">
+            and tc.id = #{clusterId}
+        </if>
+
+
+    </select>
+
+    <select id="getDevicesByClusterId" parameterType="java.lang.String"
+            resultMap="BaseResultMap">
+		SELECT * FROM tb_devices WHERE
+		cluster_id=	#{clusterId} and  valid =true
+
+	</select>
+
+
+    <select id="getDevicesList" parameterType="java.lang.String"
+            resultMap="VoResultMap">
+        SELECT
+        td.*,
+        tc.NAME AS cluster_name,
+
+        tdb.`name` AS baseName,
+        tdb.type AS baseType,
+        tdb.model AS model,
+        tdb.cpu AS cpu,
+        tdb.cpu_number AS cpu_number,
+        tdb.cpu_slot AS cpu_slot,
+        tdb.memory_model AS memory_model,
+        tdb.memory AS memory,
+        tdb.memory_slot AS memory_slot,
+        tdb.graphics AS graphics,
+        tdb.disk_model AS disk_model,
+        tdb.disk_size AS disk_size,
+        tdb.network_card AS network_card
+        FROM
+        tb_devices td,
+        tb_clusters tc,
+
+        tb_device_base tdb
+        WHERE
+        td.valid = TRUE
+        AND td.cluster_id = tc.id
+
+        AND td.base_id = tdb.id
+        <if test="id!=null">
+            and td.id = #{id}
+        </if>
+        <if test="name!=null">
+            and  td.`name`=   #{name}
+        </if>
+        <if test="innerMac!=null">
+            and td.inner_mac = #{innerMac}
+        </if>
+        <if test="clusterName!=null">
+            and tc.NAME= #{clusterName}
+        </if>
+        <if test="idc!=null">
+            and td.idc = #{idc}
+        </if>
+        <if test="cabinet!=null">
+            and td.cabinet = #{cabinet}
+        </if>
+        <if test="location!=null">
+            and td.location = #{location}
+        </if>
+        <if test="slot!=null">
+            and td.slot = #{slot}
+        </if>
+        <if test="groupName!=null">
+            and tdg.name = #{groupName}
+        </if>
+        <if test="managerIp!=null">
+            and td.manager_ip = #{managerIp}
+        </if>
+        <if test="managerPort!=null">
+            and td.manager_port = #{managerPort}
+        </if>
+        <if test="innerIp!=null">
+            and td.inner_ip = #{innerIp}
+        </if>
+        <if test="innerPort!=null">
+            and td.inner_port = #{innerPort}
+        </if>
+        <if test="ip!=null">
+            and td.ip = #{ip}
+        </if>
+        <if test="port!=null">
+            and td.port = #{port}
+        </if>
+        <if test="description!=null">
+            and td.description = #{description}
+        </if>
+        <if test="status!=null">
+            and td.status = #{status}
+        </if>
+        <if test="schStatus!=null">
+            and td.sch_status = #{schStatus}
+        </if>
+        <if test="baseType!=null">
+            and tdb.type = #{baseType}
+        </if>
+        <if test="search!=null">
+           AND CONCAT( td.`name`,td.ip ) LIKE CONCAT ('%', #{search},'%')
+        </if>
+        ORDER BY td.create_time DESC
+    </select>
+
+
+    <select id="getDeviceStatusCount" resultMap="DeviceStatusCountVO">
+        SELECT
+        'IDLE' as 'status',
+        count(*) AS count,
+        ( CAST( count(*) AS DECIMAL ) / CAST( (SELECT COUNT(*) FROM tb_devices td WHERE td.valid = TRUE and td.sch_status = 1) AS DECIMAL ) ) AS percentage
+        FROM
+        tb_devices td
+        WHERE
+        td.`status` = 1
+        and td.sch_status = 1
+        AND td.valid = TRUE
+        <if test="clusterId!=null">
+            and td.cluster_id   = #{clusterId}
+        </if>
+
+        UNION ALL
+
+        SELECT
+        'USED',
+        count(*) AS count,
+        ( CAST( count(*) AS DECIMAL ) / CAST( (SELECT COUNT(*) FROM tb_devices td WHERE td.valid = TRUE and td.sch_status = 1) AS DECIMAL ) ) AS percentage
+
+
+        FROM
+        tb_devices td
+        WHERE
+        td.`status` = 2
+        and td.sch_status = 1
+        AND td.valid = TRUE
+        <if test="clusterId!=null">
+            and td.cluster_id   = #{clusterId}
+        </if>
+
+        UNION ALL
+
+
+        SELECT
+        'ERROR',
+        count(*) AS count,
+        ( CAST( count(*) AS DECIMAL ) / CAST( (SELECT COUNT(*) FROM tb_devices td WHERE td.valid = TRUE and td.sch_status = 1) AS DECIMAL ) ) AS percentage
+
+
+        FROM
+        tb_devices td
+        WHERE
+        td.`status` = 3
+        and td.sch_status = 1
+        AND td.valid = TRUE
+        <if test="clusterId!=null">
+            and td.cluster_id   = #{clusterId}
+        </if>
+        UNION ALL
+
+
+        SELECT
+        'INSTALLING',
+        count(*) AS count,
+        ( CAST( count(*) AS DECIMAL ) / CAST( (SELECT COUNT(*) FROM tb_devices td WHERE td.valid = TRUE and td.sch_status = 1) AS DECIMAL ) ) AS percentage
+
+
+        FROM
+        tb_devices td
+        WHERE
+        td.`status` = 4
+        and td.sch_status = 1
+        AND td.valid = TRUE
+        <if test="clusterId!=null">
+            and td.cluster_id   = #{clusterId}
+        </if>
+
+        UNION ALL
+
+        SELECT
+        'REBOOTING',
+        count(*) AS count,
+        ( CAST( count(*) AS DECIMAL ) / CAST( (SELECT COUNT(*) FROM tb_devices td WHERE td.valid = TRUE and td.sch_status = 1) AS DECIMAL ) ) AS percentage
+        FROM
+        tb_devices td
+        WHERE
+        td.`status` = 5
+        and td.sch_status = 1
+        AND td.valid = TRUE
+        <if test="clusterId!=null">
+            and td.cluster_id   = #{clusterId}
+        </if>
+        UNION ALL
+
+
+
+
+        SELECT
+        'TOTAL',
+        COUNT(*)as count,
+        ( CAST( count(*) AS DECIMAL ) / CAST( (SELECT COUNT(*) FROM tb_devices td WHERE td.valid = TRUE and td.sch_status = 1) AS DECIMAL ) ) AS percentage
+
+        FROM
+        tb_devices td
+        WHERE td.valid=true
+        and td.sch_status = 1
+        <if test="clusterId!=null">
+            and td.cluster_id   = #{clusterId}
+
+
+        </if>
+      </select>
+
+
+    <select id="getDeviceUsageRate" resultMap="DeviceUsageCountVO">
+
+        SELECT
+        a.cluster_name,
+        a.connectCount,
+        a.deviceCount,
+        ( CAST( a.connectCount AS DECIMAL ) / CAST( a.deviceCount AS DECIMAL ) ) AS percentage
+        FROM
+        (
+        SELECT
+        tc.id AS cluster_id,
+        tc.NAME AS cluster_name,
+        tc.device_num as deviceCount ,
+        count( tdu.id ) AS connectCount
+        FROM
+        tb_device_used tdu,
+        tb_clusters tc,
+        tb_devices td
+        WHERE
+        td.id = tdu.device_id
+        and td.valid=true
+        AND td.cluster_id = tc.id
+        AND tdu.end_time IS NOT TRUE
+
+        <if test="clusterId!=null">
+            and  td.cluster_id= #{clusterId}
+        </if>
+        GROUP BY
+        tc.id
+        ) a
+
+    </select>
+
+    <select id="getDeviceUsageOneDay" resultType="String">
+        SELECT
+
+
+        ( a.totalTime/60 /( a.deviceCount * 24 * 60
+        ) ) AS device_usage
+        FROM
+        (
+        SELECT
+        tc.id AS cluster_id,
+        sum( tdu.total_time ) AS totalTime,
+        tc.`name` AS cluster_name ,
+            tc.device_num as deviceCount
+
+        FROM
+        tb_device_used tdu,
+        tb_clusters tc,
+        tb_devices td
+        WHERE
+        tdu.device_id = td.id
+        and td.valid=true
+       AND td.cluster_id = tc.id
+        <if test="clusterId!=null">
+            and  td.cluster_id= #{clusterId}
+        </if>
+       AND tdu.begin_time  <![CDATA[ < ]]> date  #{endTime}  AND tdu.end_time > date  #{startTime}
+        GROUP BY
+        tc.id
+        ) a
+
+    </select>
+
+
+
+
+
+    <select id="getDeviceUsageHistory" resultMap="DeviceUsageCountHistoryVO" >
+       SELECT
+	a.cluster_id AS cluster_id,
+	a.totalTime,
+	a.cluster_name,
+	a.deviceCount,
+	( a.totalTime/60 /( a.deviceCount * 24 * 60 * #{day}
+		) ) AS device_usage
+    FROM
+	(
+	SELECT
+		tc.id AS cluster_id,
+		sum( tdu.total_time ) AS totalTime,
+		tc.`name` AS cluster_name ,
+	    tc.device_num as deviceCount
+
+	FROM
+		tb_device_used tdu,
+		tb_clusters tc,
+		tb_devices td
+	WHERE
+		tdu.device_id = td.id
+		and td.valid=true
+		AND td.cluster_id = tc.id
+        <if test="clusterId!=null">
+            and  td.cluster_id= #{clusterId}
+        </if>
+        AND ((
+        DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime}
+        AND date #{endTime}
+        )
+        OR ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date  #{startTime} AND date #{endTime} )
+        OR ( DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date  #{startTime} AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime} ) )
+        )
+        GROUP BY
+         tc.id
+        ) a
+
+
+    </select>
+
+    <select id="getDevicesByInstallAppId" resultMap="AppDevicesVOResultMap">
+            SELECT
+            td.id,
+            td.name,
+            td.inner_ip as ip,
+            tc.`name` AS cluster_name
+            FROM
+            tb_device_apps tda,
+            tb_devices td,
+            tb_user_apps tua,
+            tb_clusters tc,
+            tb_device_base tdb
+            WHERE
+            tua.id = #{appId}
+
+            AND tua.id = tda.app_id
+            AND tda.device_id = td.id
+            AND tc.id = td.cluster_id
+            AND tc.sch_status = TRUE
+            AND td.valid = TRUE
+
+            AND tda.valid = true
+
+            and tdb.id=td.base_id
+            and tdb.type =tua.type
+
+    </select>
+
+    <select id="getTotalUsage" resultType="String">
+         SELECT
+	( sum(a.totalTime)/60  /( sum(a.deviceCount) * 24 * 60 * #{day}
+		) ) AS device_usage
+
+    FROM
+	(
+	SELECT
+		tc.id AS cluster_id,
+		sum( tdu.total_time ) AS totalTime,
+		tc.`name` AS cluster_name ,
+	    tc.device_num as deviceCount
+
+	FROM
+		tb_device_used tdu,
+		tb_clusters tc,
+		tb_devices td
+	WHERE
+		tdu.device_id = td.id
+		and td.valid=true
+		AND td.cluster_id = tc.id
+
+        AND ((
+        DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) BETWEEN date #{startTime}
+        AND date #{endTime}
+        )
+        OR ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" ) BETWEEN date  #{startTime} AND date #{endTime} )
+        OR ( DATE_FORMAT( tdu.begin_time, "%y-%m-%d" ) <![CDATA[ < ]]> date  #{startTime} AND ( DATE_FORMAT( tdu.end_time, "%y-%m-%d" )> date #{endTime} ) )
+        )
+        GROUP BY
+         tc.id
+        ) a
+    </select>
+
+    <select id="getAppInstallCount" resultMap="AppDeviceCountVO">
+    SELECT
+
+	tua.`name` as app_name,
+	count(tda.app_id) as count
+FROM
+	`tb_device_apps` tda,
+	tb_devices td ,
+	tb_user_apps tua
+WHERE
+	tda.valid = TRUE
+	AND td.id = tda.device_id
+	and tua.id= tda.app_id
+GROUP BY
+	tda.app_id
+    </select>
+
+    <select id="getClusterDevicesStatus" resultMap="ClusterDevicesStatusVO">
+      SELECT DISTINCT
+	( SELECT count(*) FROM tb_devices td WHERE td.valid = TRUE AND td.`status` = 1 	AND td.cluster_id = #{id}) AS idle,
+	( SELECT count(*) FROM tb_devices td WHERE td.valid = TRUE AND td.`status` = 2 	AND td.cluster_id = #{id}) AS used,
+	( SELECT count(*) FROM tb_devices td WHERE td.valid = TRUE AND td.`status` = 3 	AND td.cluster_id = #{id}) AS error,
+	( SELECT count(*) FROM tb_devices td WHERE td.valid = TRUE AND td.`status` = 4	AND td.cluster_id = #{id} ) AS installing,
+	( SELECT count(*) FROM tb_devices td WHERE td.valid = TRUE AND td.`status` = 5 	AND td.cluster_id = #{id}) AS rebooting
+FROM
+	tb_devices td
+WHERE
+	td.valid = TRUE
+	AND td.cluster_id = #{id}
+
+    </select>
+
+    <select id="getDevicesVoByGroupId" parameterType="java.lang.String"
+            resultMap="VoResultMap">
+        SELECT
+        td.*,
+        tdb.type AS base_type,
+        tdb.NAME AS base_name,
+        tc.NAME AS cluster_name
+        FROM
+        tb_devices td,
+        tb_clusters tc,
+        tb_device_base tdb,
+        tb_device_group tdg,
+		tb_device_group_related tdgr
+
+        WHERE
+        td.valid = TRUE
+        and tdgr.valid=true
+        and tdg.valid =true
+        and tc.valid=true
+        AND td.base_id = tdb.id
+        AND tc.id = td.cluster_id
+        and tdg.id =tdgr.group_id
+        and td.id=tdgr.device_id
+		and tdg.id=#{groupId}
+        <if test="clusterId!=null">
+            and td.cluster_id   = #{clusterId}
+        </if>
+        <if test="id!=null">
+            and td.id = #{id}
+        </if>
+        <if test="name!=null">
+            and  INSTR(td.name, #{name} )
+        </if>
+        <if test="innerMac!=null">
+            and td.inner_mac = #{innerMac}
+        </if>
+        <if test="clusterName!=null">
+            and tc.NAME= #{clusterName}
+        </if>
+        <if test="idc!=null">
+            and td.idc = #{idc}
+        </if>
+        <if test="cabinet!=null">
+            and td.cabinet = #{cabinet}
+        </if>
+        <if test="location!=null">
+            and td.location = #{location}
+        </if>
+        <if test="slot!=null">
+            and td.slot = #{slot}
+        </if>
+        <if test="managerIp!=null">
+            and td.manager_ip = #{managerIp}
+        </if>
+        <if test="managerPort!=null">
+            and td.manager_port = #{managerPort}
+        </if>
+        <if test="innerIp!=null">
+            and td.inner_ip = #{innerIp}
+        </if>
+        <if test="innerPort!=null">
+            and td.inner_port = #{innerPort}
+        </if>
+        <if test="ip!=null">
+            and td.ip = #{ip}
+        </if>
+        <if test="port!=null">
+            and td.port = #{port}
+        </if>
+        <if test="description!=null">
+            and td.description = #{description}
+        </if>
+        <if test="status!=null">
+            and td.status = #{status}
+        </if>
+        <if test="schStatus!=null">
+            and td.sch_status = #{schStatus}
+        </if>
+        <if test="baseType!=null">
+            and tdb.type = #{baseType}
+        </if>
+        <if test="search!=null">
+          AND CONCAT( td.`name`,td.ip ) LIKE CONCAT ('%', #{search},'%')
+        </if>
+    </select>
+
+    <select id="getRelatedGroupName" resultType="String">
+    SELECT
+	tdg.NAME AS NAME
+FROM
+	tb_device_group_related tdgr,
+	tb_device_group tdg
+WHERE
+	tdgr.group_id = tdg.id
+	AND tdgr.valid = TRUE
+	AND tdg.valid = TRUE
+	AND tdgr.device_id = #{deviceId}
+
+
+    </select>
+</mapper>

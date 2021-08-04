@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.open.dao.SignalServerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.open.model.db.SignalServer">
+        <id column="id" property="id" />
+        <result column="server_name" property="serverName" />
+        <result column="domain" property="domain" />
+        <result column="public_ip" property="publicIp" />
+        <result column="public_http_port" property="publicHttpPort" />
+        <result column="public_https_port" property="publicHttpsPort" />
+        <result column="http_url" property="httpUrl" />
+        <result column="https_url" property="httpsUrl" />
+        <result column="internal_ip" property="internalIp" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    <select id="getByClusterId" resultMap="BaseResultMap">
+        SELECT ss.* FROM signal_server ss,cluster_signal  cs  WHERE cs.signal_server=ss.id  and cs.cluster_id=#{id}  and ss.valid=1 and cs.valid=1
+
+    </select>
+</mapper>

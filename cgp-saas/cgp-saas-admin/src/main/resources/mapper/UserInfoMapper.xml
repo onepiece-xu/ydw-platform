@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.UserInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.UserInfo">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+        <result column="mobile_number" jdbcType="VARCHAR" property="mobileNumber" />
+        <result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+        <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+        <result column="avatar" jdbcType="VARCHAR" property="avatar" />
+        <result column="wechat" jdbcType="VARCHAR" property="wechat" />
+        <result column="qq_number" jdbcType="VARCHAR" property="qqNumber" />
+        <result column="wechat_open_id" jdbcType="VARCHAR" property="wechatOpenId" />
+        <result column="share_code" jdbcType="VARCHAR" property="shareCode" />
+        <result column="profit" jdbcType="DECIMAL" property="profit" />
+        <result column="balance" jdbcType="DECIMAL" property="balance" />
+    </resultMap>
+    <resultMap id="OnlineUsersVO" type="com.ydw.admin.model.vo.OnlineUsersVO"></resultMap>
+    <resultMap id="ChargeListVO" type="com.ydw.admin.model.vo.ChargeListVO"></resultMap>
+    <resultMap id="UserListVO" type="com.ydw.admin.model.vo.UserListVO"></resultMap>
+
+    <select id="getAllUser" resultType="String">
+        SELECT ui.id FROM user_info ui WHERE mobile_number is true and `status` =0
+    </select>
+
+    <select id="getTemplateByType" resultType="String">
+        SELECT mt.content FROM message_template mt  where mt.type = #{type}
+    </select>
+    <select id="getOnlineList" resultMap="OnlineUsersVO">
+        SELECT
+        a.id as appId,
+        a.name as appName,
+        t.device_id,
+        t.device_name,
+        t.client ,
+        ui.nickname,
+        ui.mobile_number,
+        t.begin_time,
+        t.from_ip,
+        t.user_id as customerId
+        FROM
+        app a,
+        tb_connect t,
+        user_info ui
+        WHERE
+        ui.id = t.user_id
+        AND t.app_id = a.id
+        AND t.end_time IS NOT TRUE
+        <if test="search != null">
+            and ui.mobile_number like concat('%',#{search},'%')
+        </if>
+        <if test="client != null">
+            and t.client =#{client}
+        </if>
+        ORDER BY t.begin_time DESC
+    </select>
+
+    <select id="getChargeList" resultMap="ChargeListVO">
+        SELECT
+        t.id,
+        t.from_ip,
+        t.client,
+        ui.nickname,
+        t.begin_time,
+        t.end_time,
+        t.user_id AS customerId,
+        a.`name` as appName,
+        t.device_name,
+        t.cluster_name
+        FROM
+        tb_connect t,
+        user_info ui,
+        app a
+        WHERE
+        a.id = t.app_id
+        AND t.end_time IS TRUE
+        AND ui.id = t.user_id
+        <if test="search != null">
+            and ui.nickname like concat('%',#{search},'%')
+        </if>
+        <if test="client != null">
+            and t.client=#{client}
+        </if>
+	    ORDER BY t.begin_time desc
+
+    </select>
+    <select id="getDistributionUserList" parameterType="String" resultType="com.ydw.admin.model.vo.DistributionUserVO">
+        SELECT
+            ui.id id,
+            ui.nickname nickname,
+            ui.mobile_number mobileNumber,
+            ui.register_time registerTime,
+            ui.modified_time modifiedTime,
+            ui.avatar avatar,
+            ui.share_code shareCode,
+            ui.profit profit,
+            ui.balance balance,
+            ur.recommender recommender,
+            uii.nickname recommenderName,
+            urr.invitationNum,
+            up.bindNum
+        FROM
+            user_info ui
+        LEFT JOIN user_relational ur ON ui.id = ur.inferior and ur.valid = true
+        LEFT JOIN user_info uii ON ur.recommender = uii.id
+        LEFT JOIN (
+            SELECT
+                ur1.recommender,
+                count(1) invitationNum
+            FROM
+                user_relational ur1
+            GROUP BY
+                ur1.recommender
+        ) urr ON ui.id = urr.recommender
+        LEFT JOIN (
+          SELECT
+            count(1) bindNum,
+            payee
+          FROM
+            user_pay
+          WHERE
+            valid = TRUE
+          GROUP BY
+            payee
+        ) up ON ui.id = up.payee
+        where ui.mobile_number is not null
+        <if test="search != null">
+            and ui.nickname like concat('%',#{search},'%')
+        </if>
+        order by ui.register_time desc
+    </select>
+
+    <select id="getDistributionRecommender" resultType="com.ydw.admin.model.vo.DistributionUserVO">
+      SELECT
+        ui.id id,
+        ui.nickname nickname,
+        ui.mobile_number mobileNumber,
+        ui.register_time registerTime,
+        ui.modified_time modifiedTime,
+        ui.avatar avatar,
+        ui.share_code shareCode,
+        ui.profit profit,
+        ui.balance balance
+      FROM
+        user_relational ur
+      LEFT JOIN user_info ui on ur.recommender = ui.id
+      where ur.inferior = #{userId}
+    </select>
+    <select id="getDistributionInferior" resultType="com.ydw.admin.model.vo.DistributionUserVO">
+      SELECT
+        ui.id id,
+        ui.nickname nickname,
+        ui.mobile_number mobileNumber,
+        ui.register_time registerTime,
+        ui.modified_time modifiedTime,
+        ui.avatar avatar,
+        ui.share_code shareCode,
+        ui.profit profit,
+        ui.balance balance
+      FROM
+        user_relational ur
+      LEFT JOIN user_info ui on ur.inferior = ui.id
+      where ur.recommender = #{userId}
+    </select>
+    <select id="getNewUserList" resultMap="UserListVO">
+        SELECT  ui.id as userId ,ui.nickname as nickName ,ui.mobile_number,ui.register_time FROM user_info  ui
+        WHERE ui.register_time &gt; #{startTime} and ui.register_time &lt; #{endTime}
+        <if test="search != null">
+            and ui.nickname like concat('%',#{search},'%')
+        </if>
+    </select>
+
+    <select id="getNewUserRecharge" resultType="String">
+        SELECT
+        sum( tr.final_cost )
+        FROM
+        tb_recharge tr
+        WHERE
+        tr.status=1 and
+        tr.create_time  &gt;  #{startTime}
+        AND tr.create_time  &lt; #{endTime}
+        AND tr.account IN
+        (SELECT ui.id FROM user_info ui WHERE ui.register_time  &gt;  #{startTime}
+        AND ui.register_time  &lt; #{endTime}
+        )
+
+    </select>
+    <select id="getUserTotalRecharge" resultType="String">
+        SELECT
+        sum(tr.final_cost)
+        FROM
+        tb_recharge tr
+        WHERE
+        tr.status=1 and
+        tr.create_time &gt;  #{startTime}
+        AND tr.create_time &lt; #{endTime}
+    </select>
+    <select id="getOldUserRecharge" resultType="String">
+        SELECT sum( tr.final_cost ) FROM tb_recharge tr WHERE  tr.status=1  and tr.create_time  &gt;  #{startTime}
+        AND tr.create_time  &lt; #{endTime}
+        AND tr.account IN (
+        SELECT
+        ui.id
+        FROM
+        user_info ui
+        WHERE
+        ui.register_time  &lt;  #{startTime}
+        )
+
+    </select>
+    <select id="getUserActivity"  resultType="String">
+        SELECT count( DISTINCT user_id )/( SELECT count( id ) FROM user_info ui WHERE mobile_number IS TRUE )
+        FROM
+        tb_connect tc
+        WHERE
+        ( tc.begin_time BETWEEN #{startTime} AND  #{endTime} )
+        OR ( tc.end_time BETWEEN #{startTime} AND  #{endTime} )
+        OR ( tc.begin_time &lt; #{startTime} AND tc.end_time &gt; #{endTime} )
+        AND tc.user_Id IN (
+        SELECT
+        id
+        FROM
+        user_info ui
+        WHERE
+        mobile_number IS TRUE
+        )
+    </select>
+    <select id="getOnlineListByEnterprise" resultMap="OnlineUsersVO">
+        SELECT
+            a.id as appId,
+            a.name as appName,
+            t.device_id,
+            t.device_name,
+            t.client ,
+            ui.nickname,
+            t.begin_time,
+            t.from_ip,
+            t.user_id as customerId
+        FROM
+            app a,
+            tb_connect t,
+            user_info ui
+        WHERE
+        ui.id = t.user_id
+        AND t.app_id = a.id
+        AND t.end_time IS NOT TRUE
+        <if test="list != null">
+            AND ui.channel_id in
+            <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="search != null">
+            and ui.nickname like concat('%',#{search},'%')
+        </if>
+        <if test="client != null">
+            and t.client =#{client}
+        </if>
+        ORDER BY t.begin_time DESC
+
+    </select>
+    <select id="getNewRegisterByEnterprise" resultType="java.util.HashMap">
+        SELECT
+            COUNT(1) as registerNum,
+            DATE_FORMAT(
+                ui.register_time,
+                '%Y-%m-%d'
+            ) registerDay
+        FROM
+            user_info ui
+        where
+            ui.status = 0
+            <if test="list != null">
+                and ui.channel_id IN
+                <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="startTime != null">
+                and ui.register_time &gt; #{startTime}
+            </if>
+            <if test="endTime != null">
+                and ui.register_time &lt; #{endTime}
+            </if>
+        GROUP BY
+            DATE_FORMAT(
+                ui.register_time,
+                '%Y-%m-%d'
+            )
+        order by DATE_FORMAT(
+                  ui.register_time,
+                  '%Y-%m-%d'
+            ) desc
+    </select>
+    <resultMap id="IPCountVO" type="com.ydw.admin.model.vo.IPCountVO"></resultMap>
+    <select id="getOnlineListInfo" resultMap="IPCountVO">
+     SELECT
+	t.from_ip,
+	count( t.from_ip ) as count
+FROM
+	app a,
+	tb_connect t,
+	user_info ui
+WHERE
+    ui.id not in('6753256284550393872','6725051012128037485','6779705598914919882'
+    ,'6729202893854343778','6722101411999822629','6787930429170971758','6781168642329213938'
+    ,'6795887329897529865','6750333772569047467','6781143200662617063','6775984130284650351','6771991605043589328')
+	and
+	ui.id = t.user_id
+	AND t.app_id = a.id
+	AND t.end_time IS NOT TRUE
+GROUP BY
+	t.from_ip
+    </select>
+</mapper>

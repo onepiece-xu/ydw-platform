@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbWebrtcConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbWebrtcConfig">
+        <id column="id" property="id" />
+        <result column="signal_server" property="signalServer" />
+        <result column="signal_server_https" property="signalServerHttps" />
+        <result column="turn_server" property="turnServer" />
+        <result column="turn_user" property="turnUser" />
+        <result column="turn_password" property="turnPassword" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="WebRtcConfigVO" type="com.ydw.user.model.vo.WebRtcConfigVO"></resultMap>
+    <select id="getList" resultMap="WebRtcConfigVO">
+      select * from  tb_webrtc_config  where valid =true
+    </select>
+    <select id="getById" resultMap="BaseResultMap">
+        select *from  tb_webrtc_config where id=#{id}
+    </select>
+
+</mapper>

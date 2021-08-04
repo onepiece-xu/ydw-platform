@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.recharge.dao.DistributionAwardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.recharge.model.db.DistributionAward">
+        <id column="id" property="id" />
+        <result column="income" property="income" />
+        <result column="contribution" property="contribution" />
+        <result column="event" property="event" />
+        <result column="amount" property="amount" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <select id="getUserDistributionAwardGroupByDay"
+            resultType="com.ydw.recharge.model.vo.DistributionAwardGroupDayVO">
+        SELECT
+            count(DISTINCT(da.contribution)) contributionNum,
+            ifnull(sum(da.amount),0) contributionSum,
+            DATE_FORMAT(da.create_time, '%Y-%m-%d') byday
+        FROM
+            distribution_award da
+        where da.income = #{userId}
+        GROUP BY
+            DATE_FORMAT(da.create_time, '%Y-%m-%d')
+    </select>
+    <select id="getUserDistributionAward" resultType="com.ydw.recharge.model.vo.DistributionAwardVO">
+        SELECT
+            count(1) incomeNum,
+            ifnull(sum(da.amount),0) incomeSum
+        FROM
+            distribution_award da
+        WHERE da.income = #{userId}
+    </select>
+
+</mapper>

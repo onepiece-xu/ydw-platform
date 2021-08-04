@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.recharge.dao.CouponBagMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.recharge.model.db.CouponBag">
+        <id column="id" property="id" />
+        <result column="coupon_id" property="couponId" />
+        <result column="user_id" property="userId" />
+        <result column="status" property="status" />
+        <result column="ticket" property="ticket"/>
+        <result column="create_time" property="createTime" />
+        <result column="used_time" property="usedTime" />
+        <result column="valid_begin_time" property="validBeginTime" />
+        <result column="valid_end_time" property="validEndTime" />
+    </resultMap>
+
+    <select id="getUserCouponBag" resultType="com.ydw.recharge.model.vo.CouponCardBagVO">
+        SELECT
+            tcc.id cardId,
+            tcc.name,
+            tcc.description,
+            tcc.promotion_type promotionType,
+            tcc.recharge_card_id rechargeCardId,
+            tcc.obtain_type obtainType,
+            tcc.validity_type validityType,
+            tcc.drawable_num drawAbleNum,
+            tcc.drawed_num drawedNum,
+            tcc.user_drawable_num userdrawAbleNum,
+            tcc.discount,
+            tcc.reduction,
+            tcc.duration,
+            tcb.valid_begin_time validBeginTime,
+            tcb.valid_end_time validEndTime,
+            tcb.id bagId,
+            tcb.user_id userId,
+            tcb.status,
+            tcb.create_time createTime,
+            tcb.used_time usedTime
+        FROM
+            tb_coupon_bag tcb
+        LEFT JOIN tb_coupon_card tcc ON tcb.coupon_id = tcc.id
+        WHERE
+            tcb.user_id = #{userId}
+        <if test="status != null">
+            and tcb.status in
+            <foreach collection="status" open="(" close=")" index="index" item="item" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="rechargeCardId != null">
+            and tcc.recharge_card_id = #{rechargeCardId}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.TimeLimitedMissionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.TimeLimitedMission">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="content" property="content" />
+        <result column="begin_time" property="beginTime" />
+        <result column="end_time" property="endTime" />
+        <result column="valid" property="valid" />
+        <result column="status" property="status" />
+    </resultMap>
+    <resultMap id="TimeLimitedMissionVO" type="com.ydw.platform.model.vo.TimeLimitedMissionVO"></resultMap>
+        <select id="getMissionList" resultMap="TimeLimitedMissionVO">
+            SELECT tlm.* from time_limited_mission  tlm ,user_limited_mission ulm WHERE tlm.id = ulm.mission_id and ulm.user_id=#{userId}
+        </select>
+</mapper>

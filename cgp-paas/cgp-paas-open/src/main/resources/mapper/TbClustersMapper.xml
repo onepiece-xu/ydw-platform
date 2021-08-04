@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.open.dao.TbClustersMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.open.model.db.TbClusters">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="is_local" property="isLocal" />
+        <result column="desc" property="desc" />
+        <result column="api_url" property="apiUrl" />
+        <result column="access_ip" property="accessIp" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="sch_status" property="schStatus" />
+        <result column="device_num" property="deviceNum" />
+        <result column="valid" property="valid" />
+        <result column="inner_ip" property="innerIp" />
+    </resultMap>
+    <select id="getClusters" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM
+        tb_clusters tc,
+        cluster_owner co
+        WHERE
+        tc.id = co.cluster_id
+        AND tc.valid = TRUE
+        AND co.valid = TRUE
+        <if test="name!=null">
+            and tc.`name` =#{name}
+        </if>
+        <if test="type!=null">
+            and tc.`type`=#{type}
+        </if>
+
+        <if test="isLocal!=null">
+            and tc.is_local=#{isLocal}
+        </if>
+
+        <if test="description!=null">
+            and tc.description=#{description}
+        </if>
+
+        <if test="apiUrl!=null">
+            and tc.api_url=#{apiUrl}
+        </if>
+
+        <if test="accessIp!=null">
+            and tc.access_ip=#{accessIp}
+        </if>
+        <if test="schStatus!=null">
+            and tc.schStatus=#{schStatus}
+        </if>
+        <if test="search!=null">
+            and (tc.`name` LIKE CONCAT('%', #{search}, '%') or  tc.access_ip LIKE CONCAT('%', #{search}, '%'))
+        </if>
+        <if test="identification!=null">
+            and co.owner_id=#{identification}
+        </if>
+
+ORDER BY
+	tc.create_time DESC
+    </select>
+
+    <select id="getAllClusters" resultMap="BaseResultMap">
+        <if test="identification==null">
+            SELECT
+            *
+            FROM
+            tb_clusters tc
+            WHERE
+            tc.valid = TRUE;
+        </if>
+        <if test="identification!=null">
+            SELECT
+            *
+            FROM
+            tb_clusters tc,
+            cluster_owner co
+            WHERE
+            tc.valid = TRUE
+            AND co.cluster_id = tc.id
+            AND co.valid = 1
+            and co.owner_id=#{identification}
+        </if>
+    </select>
+</mapper>

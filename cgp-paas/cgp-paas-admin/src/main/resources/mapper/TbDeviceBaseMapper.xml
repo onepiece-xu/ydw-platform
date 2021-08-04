@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbDeviceBaseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbDeviceBase">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="model" property="model" />
+        <result column="cpu" property="cpu" />
+        <result column="cpu_number" property="cpuNumber" />
+        <result column="cpu_slot" property="cpuSlot" />
+        <result column="memory_model" property="memoryModel" />
+        <result column="memory" property="memory" />
+        <result column="memory_slot" property="memorySlot" />
+        <result column="graphics" property="graphics" />
+        <result column="disk_model" property="diskModel" />
+        <result column="disk_size" property="diskSize" />
+        <result column="network_card" property="networkCard" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="TbDevices" type="com.ydw.user.model.db.TbDevices"></resultMap>
+    <select id="getBaseList" resultMap="BaseResultMap">
+	  select  *from tb_device_base where valid =true
+    </select>
+    <select id="getBaseById" resultMap="BaseResultMap">
+	  select  *from tb_device_base where valid =true and id=#{id}
+    </select>
+    <select id="getDevicesByBaseId" resultMap="TbDevices">
+          select  *from tb_devices  t where t.valid =true and base_id=#{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.PostMessageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.PostMessage">
+        <id column="id" property="id" />
+        <result column="content" property="content" />
+        <result column="create_time" property="createTime" />
+        <result column="has_read" property="hasRead" />
+        <result column="title" property="title" />
+        <result column="to_all" property="toAll" />
+        <result column="type" property="type" />
+    </resultMap>
+    <select id="getUnreadCount" resultType="Integer">
+        SELECT count(id) from post_message pm  WHERE user_id=#{id} and has_read = 0
+    </select>
+    <resultMap id="UnreadCountVO" type="com.ydw.platform.model.vo.UnreadCountVO"></resultMap>
+    <select id="getUnreadCountByUserId" resultMap="UnreadCountVO">
+      SELECT
+	A.officialCount,
+	B.systemCount
+FROM
+	( SELECT count( id ) AS officialCount FROM post_message WHERE type = 1 AND user_id = #{userId} and has_read = 0 ) A,
+	( SELECT count( id ) AS systemCount FROM post_message WHERE type = 2 AND user_id = #{userId} and has_read = 0 ) B
+    </select>
+</mapper>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.resource.dao.DevicesMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.ydw.resource.model.db.Devices">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="base_id" property="baseId" />
+		<result column="cluster_id" property="clusterId" />
+		<result column="idc" property="idc" />
+		<result column="cabinet" property="cabinet" />
+		<result column="location" property="location" />
+		<result column="slot" property="slot" />
+		<result column="manager_ip" property="managerIp" />
+		<result column="manager_port" property="managerPort" />
+		<result column="inner_ip" property="innerIp" />
+		<result column="inner_port" property="innerPort" />
+		<result column="adb_ip" property="adbIp" />
+		<result column="adb_port" property="adbPort" />
+		<result column="srt_port" property="srtPort" />
+		<result column="ip" property="ip" />
+		<result column="port" property="port" />
+		<result column="status" property="status" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="used_space" property="usedSpace" />
+		<result column="free_space" property="freeSpace" />
+		<result column="inner_mac" property="innerMac" />
+		<result column="description" property="description" />
+		<result column="sch_status" property="schStatus" />
+		<result column="init" property="init" />
+		<result column="sd_path" property="sdPath" />
+		<result column="gateway" property="gateway" />
+		<result column="uuid" property="uuid"/>
+		<result column="valid" property="valid" />
+	</resultMap>
+	
+	<!-- 取设备操作参数 -->
+	<select id="getDeviceInfo" resultType="com.ydw.resource.model.vo.DeviceInfo">
+		SELECT
+			t1.id deviceId,
+			t1.`name` deviceName,
+			t1.manager_ip managerIp,
+			t1.manager_port managerPort,
+			t1.inner_ip innerIp,
+			t1.inner_port innerPort,
+			t1.adb_port adbPort,
+			t1.adb_ip adbIp,
+			t1.srt_port srtPort,
+			t1.ip,
+			t1. PORT,
+			t1.`status`,
+			t1.used_space usedSpace,
+			t1.free_space freeSpace,
+			t1.inner_mac innerMac,
+			t1.cluster_id clusterId,
+			t1.uuid,
+			t1.sd_path sdPath,
+			t2.`name` clusterName,
+			t2.api_url apiUrl,
+			t2.node_url nodeUrl,
+			t2.access_ip accessIp,
+			t1.base_id baseId,
+			t3.`name` baseName,
+			t3.type deviceType,
+			t3.model
+		FROM
+			tb_devices t1
+		INNER JOIN tb_clusters t2 ON t1.cluster_id = t2.id
+		INNER JOIN tb_device_base t3 ON t1.base_id = t3.id
+		WHERE 
+			t1.valid = 1 
+			and t1.id = #{devid}
+	</select>
+	
+	<!-- 取设备操作参数 -->
+	<select id="getDeviceInfos" resultType="com.ydw.resource.model.vo.DeviceInfo">
+		SELECT
+			t1.id deviceId,
+			t1.`name` deviceName,
+			t1.manager_ip managerIp,
+			t1.manager_port managerPort,
+			t1.inner_ip innerIp,
+			t1.inner_port innerPort,
+			t1.adb_ip adbIp,
+			t1.adb_port adbPort,
+			t1.srt_port srtPort,
+			t1.ip,
+			t1. PORT,
+			t1.`status`,
+			t1.used_space usedSpace,
+			t1.free_space freeSpace,
+			t1.inner_mac innerMac,
+			t1.cluster_id clusterId,
+            t1.uuid,
+			t1.sd_path sdPath,
+			t2.`name` clusterName,
+			t2.api_url apiUrl,
+            t2.node_url nodeUrl,
+			t2.access_ip accessIp,
+			t1.base_id baseId,
+			t3.`name` baseName,
+			t3.type deviceType,
+			t3.model
+		FROM
+			tb_devices t1
+		INNER JOIN tb_clusters t2 ON t1.cluster_id = t2.id
+		INNER JOIN tb_device_base t3 ON t1.base_id = t3.id
+		WHERE 
+			t1.valid = 1 
+			and t1.id in 
+			<foreach collection="list" open="(" close=")" item="id" separator=",">
+				#{id}
+			</foreach>
+	</select>
+
+</mapper>

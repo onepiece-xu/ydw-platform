@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.AppTagMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.AppTag">
+        <id column="id" property="id" />
+        <result column="app_id" property="appId" />
+        <result column="tag_id" property="tagId" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    <resultMap id="TagBindVO" type="com.ydw.platform.model.vo.TagBindVO"></resultMap>
+
+	<resultMap id="TagVO" type="com.ydw.platform.model.vo.TagVO"></resultMap>
+
+	<select id="getAppTag" resultMap="BaseResultMap">
+        select *from app_tag WHERE app_id= #{appId} and tag_id=#{tagId}
+    </select>
+
+    <select id="getAppTagByTagId" resultMap="TagBindVO">
+SELECT
+	tat.*,
+	tua.NAME AS appName
+FROM
+	app_tag tat,
+	app tua
+WHERE
+	tat.app_id = tua.id
+	AND tag_id=#{tagId}
+	AND tat.valid = TRUE
+    </select>
+
+    <select id="getUnBindAppTagByTagId" resultMap="TagBindVO">
+       SELECT
+	B.id as appId,B.name as appName ,#{tagId} as tagId
+FROM
+	app  B
+WHERE
+	(
+	SELECT
+		count( 1 )
+	FROM
+		(
+		SELECT
+			tua.*
+		FROM
+			tag ta,
+			app tua,
+			app_tag tat
+		WHERE
+			tag_id = #{tagId}
+			AND ta.id = tat.tag_id
+			AND tat.app_id = tua.id
+			AND tat.valid = TRUE
+
+		) A
+	WHERE
+		A.id = B.id
+	) = 0
+
+    </select>
+	
+	<select id="getAppListByTag" resultType="String">
+		 SELECT tat.app_id from app_tag tat WHERE tat.tag_id=1  and tat.valid =true
+	</select>
+
+
+
+	<select id="getAppListByTagName" resultType="String">
+	SELECT tat.app_id from app_tag tat,tag tt  WHERE tt.id= tat.tag_id    and tat.valid=true ${name}
+	</select>
+
+
+
+	<select id="getAppTagNameByAppId" resultMap="TagVO">
+		SELECT tt.* from app_tag tat,tag tt ,app tua WHERE tua.id= tat.app_id and tat.tag_id= tt.id and tua.id=#{id} and tat.valid =true
+	</select>
+	<!--<select id="getAppListByTagName" parameterType="java.util.List" resultType="String">-->
+		<!--  SELECT tat.app_id from app_tag tat,tag tt WHERE tt.id= tat.tag_id and tat.valid =true-->
+		<!--<foreach collection="list" item="item" open="(" separator="," close=")">-->
+		<!--and tt.tag_name=   #{item}-->
+		<!-- </foreach>-->
+
+	<!--</select>-->
+	<select id="getTagsByAppId" resultType="String">
+	SELECT
+	tt.tag_name
+FROM
+	app_tag tat,
+	tag tt,
+	app tua
+WHERE
+	tua.id = tat.app_id
+	AND tat.tag_id = tt.id
+	AND tua.id =#{id}
+	AND tat.valid = TRUE
+	</select>
+	<select id="getAppListByTagNames" resultType="String">
+	SELECT tat.app_id from app_tag tat,tag tt   ,  app tua WHERE tt.id= tat.tag_id  and tua.id= tat.app_id and tat.valid=true  and tt.tag_name= #{name}
+		<if test="search!=null">
+			and tua.name LIKE CONCAT('%', #{search}, '%')
+		</if>
+
+	</select>
+</mapper>
+

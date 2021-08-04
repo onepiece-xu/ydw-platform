@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbKeyConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbKeyConfig">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="app_id" property="appId" />
+        <result column="platform" property="platform" />
+        <result column="config" property="config" />
+        <result column="author" property="author" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="KeyConfigVO" type="com.ydw.user.model.vo.KeyConfigVO"></resultMap>
+
+    <select id="getConfigList" resultMap="KeyConfigVO">
+    	SElect tkc.* ,tua.name as appName from tb_user_apps tua ,tb_key_config tkc WHERE tkc.app_id=tua.id and tkc.valid= true
+        <if test="appId!=null">
+            and tua.id=#{appId}
+        </if>
+        <if test="author!=null">
+            and  tkc.author=#{author}
+        </if>
+        <if test="platform!=null">
+            and  tkc.platform=#{platform}
+        </if>
+
+
+    </select>
+
+
+    <select id="getConfigByName" resultMap="BaseResultMap">
+        SELECT *FROM tb_key_config tkc WHERE tkc.name=#{name}
+    </select>
+</mapper>

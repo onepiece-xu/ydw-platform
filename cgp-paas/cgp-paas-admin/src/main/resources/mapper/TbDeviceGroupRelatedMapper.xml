@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbDeviceGroupRelatedMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbDeviceGroupRelated">
+        <id column="id" property="id" />
+        <result column="device_id" property="deviceId" />
+        <result column="group_id" property="groupId" />
+        <result column="create_time" property="createTime" />
+        <result column="modification_time" property="modificationTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    <select id="getByGroupIdDeviceId" resultMap="BaseResultMap">
+
+      SELECT *from tb_device_group_related  tdgr where tdgr.group_id=#{groupId} and tdgr.device_id=#{deviceId}
+
+    </select>
+</mapper>

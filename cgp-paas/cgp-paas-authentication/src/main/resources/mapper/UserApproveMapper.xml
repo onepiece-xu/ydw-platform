@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.authentication.dao.UserApproveMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.authentication.model.db.UserApprove">
+        <id column="id" property="id" />
+        <result column="enterprise_name" property="enterpriseName" />
+        <result column="login_name" property="loginName" />
+        <result column="password" property="password" />
+        <result column="identification" property="identification" />
+        <result column="type" property="type" />
+        <result column="email" property="email" />
+        <result column="mobile_number" property="mobileNumber" />
+        <result column="tel_number" property="telNumber" />
+        <result column="description" property="description" />
+        <result column="create_time" property="createTime" />
+        <result column="modified_time" property="modifiedTime" />
+        <result column="sch_status" property="schStatus" />
+        <result column="valid" property="valid" />
+        <result column="user_pic" property="userPic" />
+        <result column="service_id" property="serviceId" />
+    </resultMap>
+
+    <select id="getByIdentification" resultMap="BaseResultMap">
+    SELECT *from tb_user_approve where   identification=#{identification}and valid =true
+
+    </select>
+
+    <select id="getByLoginName"  resultMap="BaseResultMap">
+    SELECT *from tb_user_approve where   login_name=#{loginName}and valid =true
+
+    </select>
+    <select id="getUserApproveList"  resultMap="BaseResultMap">
+    SELECT *from tb_user_approve where valid =true and type =1
+        <if test="search != null">
+            AND enterprise_name  LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="schStatus != null">
+            AND sch_status = #{schStatus}
+        </if>
+    </select>
+
+
+    <select id="getUserInfo"  resultMap="BaseResultMap">
+       SELECT *from tb_user_approve where valid =true and id=#{id}
+    </select>
+</mapper>

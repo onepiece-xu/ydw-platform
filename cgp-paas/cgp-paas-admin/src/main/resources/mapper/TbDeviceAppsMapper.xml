@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbDeviceAppsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbDeviceApps">
+        <id column="id" property="id" />
+        <result column="device_id" property="deviceId" />
+        <result column="app_id" property="appId" />
+        <result column="setup_time" property="setupTime" />
+        <result column="uninstall_time" property="uninstallTime" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    <insert id="insertSelective" parameterType="com.ydw.user.model.db.TbDeviceApps">
+        INSERT INTO tb_device_apps
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="deviceId != null">
+                device_id,
+            </if>
+            <if test="appId != null">
+                app_id,
+            </if>
+            <if test="setupTime != null">
+                setup_time,
+            </if>
+            <if test="uninstallTime != null">
+                uninstall_time,
+            </if>
+            <if test="valid != null">
+                valid,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="deviceId != null">
+                #{deviceId},
+            </if>
+            <if test="appId != null">
+                #{appId},
+            </if>
+            <if test="setupTime != null">
+                #{setupTime},
+            </if>
+            <if test="uninstallTime != null">
+                #{uninstallTime},
+            </if>
+            <if test="valid != null">
+                #{valid},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="updateSelective" parameterType="com.ydw.user.model.db.TbDeviceApps">
+        UPDATE tb_device_apps
+        <set>
+            <if test="deviceId != null">
+                device_id=#{deviceId},
+            </if>
+            <if test="appId != null">
+                app_id=#{appId},
+            </if>
+            <if test="setupTime != null">
+                setup_time= #{setupTime},
+            </if>
+            <if test="uninstallTime != null">
+                uninstall_time= #{uninstallTime},
+            </if>
+            <if test="valid != null">
+                valid= #{valid},
+            </if>
+        </set>
+        where id = #{id}
+
+    </update>
+    <select id="getAppList"  resultMap="BaseResultMap">
+        SELECT * FROM tb_device_apps t
+        WHERE
+        id!=''
+        <if test="deviceId!=null">
+            and device_id=#{deviceId}
+        </if>
+        <if test="appId!=null">
+            and app_id=#{app_id}
+        </if>
+        <if test="valid!=null">
+            and valid=#{valid}
+        </if>
+        and t.valid=true
+        ORDER BY t.setup_time DESC
+    </select>
+
+    <select id="getDeviceApp" resultMap="BaseResultMap" >
+
+    SELECT *from tb_device_apps where device_id= #{deviceId} AND app_id=#{appId}
+    </select>
+
+    <select id="getDevicesByAppId" resultMap="BaseResultMap" >
+
+    SELECT *from tb_device_apps where app_id=#{appId} and valid =1
+    </select>
+</mapper>

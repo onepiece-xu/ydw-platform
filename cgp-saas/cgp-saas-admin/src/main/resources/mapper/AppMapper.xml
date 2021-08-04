@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.AppMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.App">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="access_id" property="accessId" />
+        <result column="type" property="type" />
+        <result column="description" property="description" />
+        <result column="order_num" property="orderNum" />
+        <result column="create_time" property="createTime" />
+        <result column="valid" property="valid" />
+        <result column="free" property="free" />
+        <result column="platform" property="platform" />
+        <result column="introduction" property="introduction" />
+        <result column="point" property="point" />
+        <result column="english_name" property="englishName" />
+        <result column="control_mode" property="controlMode" />
+        <result column="archive_mode" property="archiveMode" />
+        <result column="publisher" property="publisher" />
+        <result column="developer" property="developer" />
+
+
+    </resultMap>
+
+    <resultMap id="AppTagVO" type="com.ydw.admin.model.vo.AppTagVO"></resultMap>
+    <resultMap id="AppPictureVO" type="com.ydw.admin.model.vo.AppPictureVO"></resultMap>
+
+    <select id="getWebApps" resultMap="AppTagVO">
+        SELECT
+        tua.id AS app_id,
+        tua.`name` AS app_name ,tua.description AS description,tua.type as type, tua.create_time as createTime
+        FROM
+        app tua
+        WHERE
+        valid =1
+        <if test="search!=null">
+            and tua.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+        and tua.type!=4 and tua.type!=3
+    </select>
+
+
+    <select id="getAppListByTag" resultType="String">
+        SELECT
+        t1.*
+        FROM
+        app t1,
+        (
+        SELECT
+        t.app_id,
+        count(t.tag_id) tagnum
+        FROM
+        app_tag t
+        WHERE
+
+        t.tag_id IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and t.valid= true
+        GROUP BY
+        t.app_id
+        ) t2
+        WHERE
+        t1.id = t2.app_id
+
+        <if test="search!=null">
+            and   t1.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+
+        AND t2.tagnum = #{size};
+    </select>
+    
+    <select id="getAppsAndPics" resultMap="AppPictureVO">
+
+SELECT
+	a.*,
+	ap.big_pic,
+	ap.small_pic,
+	ap.mid_pic,
+	ap.logo_pic
+FROM
+	app a
+	LEFT JOIN app_pictures ap ON ap.app_Id = a.id
+WHERE
+	ap.valid = 1
+        <if test="search!=null">
+            and   a.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="type!=null">
+            and   a.type = #{type}
+        </if>
+        <if test="valid!=null">
+            and   a.valid = #{valid}
+        </if>
+
+ORDER BY
+	a.create_time DESC
+
+    </select>
+</mapper>

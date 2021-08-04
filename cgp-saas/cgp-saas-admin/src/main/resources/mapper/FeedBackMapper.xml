@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.FeedBackMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.FeedBack">
+        <id column="id" property="id" />
+        <result column="app_type" property="appType" />
+        <result column="question_type" property="questionType" />
+        <result column="content" property="content" />
+        <result column="contact" property="contact" />
+        <result column="valid" property="valid" />
+        <result column="user_id" property="userId" />
+        <result column="time" property="time" />
+    </resultMap>
+<resultMap id="FeedBackVO" type="com.ydw.admin.model.vo.FeedBackVO"></resultMap>
+
+<select id="getFeedBackList" resultMap="FeedBackVO">
+
+    SELECT
+    fb.*,
+    ui.nickname,
+    qt.NAME AS questionName
+    FROM
+    feed_back fb,
+    user_info ui,
+    question_type qt
+    WHERE
+    qt.id = fb.question_type
+    AND ui.id = fb.user_id
+    AND fb.valid = 1
+    <if test="search != null">
+        and ui.nickname like concat('%',#{search},'%')
+    </if>
+    ORDER BY fb.time  DESC
+</select>
+</mapper>

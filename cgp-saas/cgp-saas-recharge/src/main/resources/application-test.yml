@@ -1,0 +1,157 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /cgp-saas-recharge
+spring:
+#  freemarker:
+#    enabled: true
+#    charset: UTF-8
+#    prefer-file-system-access: true
+#    suffix: .ftl
+#    template-loader-path: classpath:/templates/
+
+  application:
+    name: cgp-saas-recharge
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848 # 将gateway注册到nacos
+  # 数据库连接配置
+  datasource:
+    name: test
+    url: jdbc:mysql://121.36.97.240:3306/cgp_saas?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false&useAffectedRows=true
+    username: root
+    password: Yidianwan!23
+    #使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+  # redis连接配置
+  redis:
+    # Redis数据库索引（默认为0）
+    database: 13
+    # Redis服务器地址
+    host: 121.36.97.240
+    # Redis服务器连接端口
+    port: 6379
+    # Redis服务器连接密码（默认为空）
+    password:
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 120000
+        readTimeout: 120000
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+  hystrix:
+    enabled: true
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 180000
+
+mybatis-plus:
+  # 如果是放在src/main/java目录下 classpath:/com/yourpackage/*/mapper/*Mapper.xml
+  # 如果是放在resource目录 classpath:/mapper/*.xml
+  mapper-locations: classpath*:/mapper/*.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.ydw.game.model.db
+  global-config:
+    # 数据库相关配置
+    db-config:
+      #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+      id-type:  1
+      #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+      field-strategy: 2
+      #驼峰下划线转换
+      db-column-underline: true
+      #mp2.3+ 全局表前缀 mp_
+      #table-prefix: mp_
+      #刷新mapper 调试神器
+      refresh-mapper: true
+      #数据库大写下划线转换
+      #capital-mode: true
+      # Sequence序列接口实现类配置
+      #key-generator: com.baomidou.mybatisplus.incrementer.OracleKeyGenerator
+      #逻辑删除配置（下面3个配置）
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      sql-injector: com.baomidou.mybatisplus.mapper.LogicSqlInjector
+    #自定义填充策略接口实现
+    #meta-object-handler: com.baomidou.springboot.MyMetaObjectHandler
+  configuration:
+    #配置返回数据库(column下划线命名&&返回java实体是驼峰命名)，自动匹配无需as（没开启这个，SQL需要写as： select user_id as userId）
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    #配置JdbcTypeForNull, oracle数据库必须配置
+    jdbc-type-for-null: 'null'
+
+#日志
+logging:
+  level:
+    com.ydw.recharge: debug
+
+#支付配置
+pay:
+  alipay:
+    protocol: https
+    gatewayHost: openapi.alipay.com
+    signType: RSA2
+    appId: 2021001195673553
+    #应用私钥
+    merchantPrivateKey: MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCNiRFBTRJx7XQ/fk+CexPnvxsxNkBmidoRpYWQHfU+kImsdC/d/k5MjOL5Pc6TXumSPhBh2YObJWOMGeofKR+r83bMewqRtz/Cck1VCLeMSRBO0x5X42vmVsQc75Hz3krbzRp6JxnjWFsU/fEs1mRrNl39Cw+YjyDhNgzNlBsUEEoQA2CZ6gBk5AsA+B4PDDT2VeU2W7Kk4Nd0os3GmnI+uJ9ZR7WO/1qm1rBd2AJRwIg1MUYa5twoFo0b5Ccnj+VWRaF0YKj9HYgxVjZggFHu1SRbHVWcCd9SjVeOTMke7A2YzG/NK27Ew9EIpphYvAywM1T2KK5A3neOYaB69so1AgMBAAECggEALYVGDXCSXB3442rme5rGHiTyw/Mk51Wy0zYfLOjVtZebD+IWexmNaUVuwqbER9Wg3a4karQghceSqr6y8+6wBwe4z69LCO6dDRbiFFVHY1Ekc5WnDrFQRLbnQD80+/Akt2jR+TOWOe5y7N93r+oMRgcoV3g1PeXat1RA7eWSh/LyzRdwF/9dxB5mw4/kWWEiFuOAyzPUQ3o38WhPQ9irQbLW3Mbd35w8l26ryEeC9CYlU/U0j+AIPnsVGbENqlGLGA3YbqhxXKOMNHxWGeVQ2p3JyqMr1oKs4Gk0bJQbGqJKb6CIMU5LZ4mubm1fJayqGzCN70KkDbT/StoTzyrSQQKBgQC/oMvDObx98QPKUQiOB0rxWuPn0ohl5oavXlAoQREkN88W6U6e1ngnxzU9ualiPWE9QVClWe2+sPyr1pIBMupjqgt1hrFOlsQn7dFiSBJEHASEVT/7IZohFamO5XLnO6Lyd9q50FEdvsq5IZYnPDCvd4HHiu/9D1rVECmTgi3ZjQKBgQC9FINEFv8Rjjq5lSjRI2dxhDQ46v7oetemSDaCfhRz9vO6brBauqPb/VjgbIQvw2wTeKsb8Xl3QweqwMO3GbMRYbEeDWXl0MF50TM6k0A7ihrgfD7425Gi2Vhq8tWP/qsnl0Cob3mO0iwIChgGlX1/LoH6Pll3/AmcOlWB3jQFSQKBgCEyILpEETQcAVUV7o50EvZ2kU6CeSB169ULWIVwqCCHDnfgmL8JVi1F5CI6PG6JRYQQAYFzb6z+CfdWp1pP0KzNM0j7uVFs6rQkDYaiB5AG7n1iK0A81O9wSjw34UzPVu3790cDIFovx/yEJffMBH8RC8ledy52b3zDXQBxp7GtAoGAF/XugIVtg1sDxBrL1lznMfJv77qP3QQcKd1C0xyJGPz1e+2k+YpnU2xyg9YcljTskDcdb+gU3XEoGpJc+uoN0CkSGd3WyN3AduB03npkjGb+6u2zyTOB7CIg20S0nY/HPrgjIHUn8Vpe7BHjY4o0IhbRr9WQ3uyYhyy5Q0DWVMkCgYBCszYS/H9piT5wJZtmCODhFGL6vWNxM/jAc87FvwSFrQqDvlczkcD/HiTJ1YTsdODa41M/H99OpEUp+7dLppUmLE+0HBj/hzyMeno9uH5fMFgng5PhL5lh9ddMUcsE1YFMqEx16gY2X3U+am/UB29BUBtHcIRNzyrTIrpODT5Edw==
+    #应用公钥证书文件路径
+    merchantCertPath: alipay/appCertPublicKey_2021001195673553.crt
+    #支付宝公钥证书文件路径
+    alipayCertPath: alipay/alipayCertPublicKey_RSA2.crt
+    #支付宝根证书文件路径
+    alipayRootCertPath: alipay/alipayRootCert.crt
+    #支付宝公钥
+    #alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy72MXYJsVZBXVPrxD5W09t+8YCUo+zq1xQa6YJmcNAGM+QdWzvzyVNPJvnTnlAHQb6KyvMusNybiC/OvsWZQ7biJywZCGwGfl3WLFLXLGzkRvLW7jtBRzAZbalAc9IcWz1hmOyoMYo2YA2dzssFmwJv7ziPZqyw+KmTScMz4S9WogTSyqzOw5HQypONgOChuMZklmLSo+dWP5S8zjDKbPAOvYd2QLfLp9mLvc3D6J0bM04xAviml1I699EMfDRV/ZmXPyHtXWW04PGEk3nk8qVYiDLYa8CT5zX5ypSHN31nHaS0iuzW1IUTUlEvsQ/iXpwmD8ehJVUJagNN+1eIrgwIDAQAB
+    #回调地址
+    notifyUrl: http://apidev.yidianwan.cn/cgp-saas-recharge/pay/alipayNotify
+  wxpay:
+    #微信公众号appid
+    appId: wxb2c3263e86d8b369
+    #app的appid
+    appId1: wxa09157e830f7a422
+    #微信公众号密钥
+    appScret: 599bbc354bc377dfd1929cfd80e38916
+    #微信支付商户号
+    mchId: 1603030507
+    #微信支付商户密钥
+    mchKey:
+    #商户平台「API安全」中的 API 密钥
+    apiKey: q4L6qglBC3CBSz15QkXStzl0rWM9bYa5
+    #商户平台「API安全」中的 APIv3 密钥
+    apiKey3: RawXLvYYycuUdi7xrTwaTzNDYMMq3vp0
+    # API 证书中的 p12证书的位置，可以指定绝对路径，也可以指定类路径（以classpath:开头）
+    certPath: wxpay/apiclient_cert.p12
+    # API 证书中的 key.pem证书的位置，可以指定绝对路径，也可以指定类路径（以classpath:开头）
+    keyPemPath: wxpay/apiclient_key.pem
+    # API 证书中的 cert.pem证书的位置，可以指定绝对路径，也可以指定类路径（以classpath:开头）
+    certPemPath: wxpay/apiclient_cert.pem
+    #回调地址
+    notifyUrl: http://apidev.yidianwan.cn/cgp-saas-recharge/pay/wxpayNotify
+    #是否沙箱环境
+    useSandbox: false
+
+#短信配置
+sms:
+  appId: 1400349137
+  appKey: 125873d60b2cee73ca4161ba2fb74edb
+  sign: 易点玩云游戏
+  templateIds:
+    #提现申请的templateId
+    apply_withdraw: 836369
+    #提现审批通过的templateId
+    withdraw_pay_success: 836403
+    #提现审批失败的templateId
+    withdraw_pay_fail: 836417

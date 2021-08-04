@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.VirtualkeyRelationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.VirtualkeyRelation">
+        <id column="config_id" property="configId" />
+        <result column="app_id" property="appId" />
+        <result column="user_id" property="userId" />
+        <result column="is_default" property="isDefault" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <select id="getBindedApp" resultType="com.ydw.admin.model.db.App">
+        SELECT
+            a.id,
+            a.name
+        FROM
+            virtualkey_relation vr
+        LEFT JOIN app a ON vr.app_id = a.id
+        WHERE
+            vr.config_id = #{id}
+        <if test="search != null">
+            and a.name like concat('%',#{search},'%')
+        </if>
+        AND vr.user_id = 'admin'
+        and vr.app_id is not null
+    </select>
+
+    <select id="getUnBindApp" resultType="com.ydw.admin.model.db.App">
+        SELECT
+            a.id,
+            a.name
+        FROM
+            app a
+        WHERE
+            a.id NOT IN (
+                SELECT
+                    app_id
+                FROM
+                    virtualkey_relation vr
+                WHERE
+                    vr.config_id = #{id}
+                AND vr.user_id = 'admin'
+                and vr.app_id is not null
+            )
+        <if test="search != null">
+            and a.name like concat('%',#{search},'%')
+        </if>
+    </select>
+
+</mapper>

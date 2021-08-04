@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbAppStrategyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbAppStrategy">
+        <id column="id" property="id" />
+
+        <result column="name" property="name" />
+        <result column="fps" property="fps" />
+        <result column="speed" property="speed" />
+        <result column="output" property="output" />
+        <result column="video" property="video" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="encode" property="encode" />
+        <result column="type" property="type" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.ydw.user.model.vo.AppVO"></resultMap>
+
+    <select id="getStrategyList" resultMap="BaseResultMap">
+
+        SELECT * FROM tb_app_strategy t
+        WHERE  id!=''
+        <if test="name!=null">
+            and `name`=#{name}
+        </if>
+        <if test="fps!=null">
+            and fps=#{fps}
+        </if>
+        <if test="speed!=null">
+            and speed=#{speed}
+        </if>
+        <if test="output!=null">
+            and `output`=#{output}
+        </if>
+        <if test="video!=null">
+            and video=#{video}
+        </if>
+        <if test="encode!=null">
+            and encode=#{encode}
+        </if>
+        <if test="search!=null">
+            and `name` LIKE CONCAT('%', #{search}, '%')
+        </if>
+        and t.valid=true
+        ORDER BY t.create_time DESC
+    </select>
+
+    <select id="getBindApps" resultMap="VoResultMap">
+        SELECT
+        tua.*,
+        tui.enterprise_name AS enterprise_name
+        FROM
+        tb_user_apps tua,
+        tb_user_info tui
+        WHERE
+        tua.strategy_id = #{strategyId}
+
+        AND tua.identification = tui.identification
+        AND tua.valid = TRUE
+        <if test="enterpriseName!=null">
+            and tui.enterprise_name=#{enterpriseName}
+        </if>
+        <if test="appName!=null">
+            and tua.`name`  LIKE CONCAT('%', #{appName}, '%')
+        </if>
+        <if test="type!=null">
+            and tua.type= #{type}
+        </if>
+
+
+    </select>
+
+
+    <select id="getUnBindApps" resultMap="VoResultMap">
+        SELECT
+        tua.*,
+        tui.enterprise_name AS enterprise_name
+        FROM
+        tb_user_apps tua,
+        tb_user_info tui
+        WHERE
+        tua.strategy_id != #{strategyId}
+
+        AND tua.identification = tui.identification
+        AND tua.valid = TRUE
+        <if test="enterpriseName!=null">
+            and tui.user_name=#{enterpriseName}
+        </if>
+        <if test="appName!=null">
+            and tua.`name` LIKE CONCAT('%', #{appName}, '%')
+        </if>
+        <if test="type!=null">
+            and tua.type= #{type}
+        </if>
+    </select>
+
+
+
+    <select id="getDefaultStrategy" resultMap="BaseResultMap">
+  	SELECT* from tb_app_strategy where valid=true and type=0
+    </select>
+</mapper>

@@ -1,0 +1,129 @@
+server:
+  port: 8000
+spring:
+  application:
+    name: cgp-saas-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848 # 将gateway注册到nacos
+    gateway:
+      discovery:
+        locator:
+          enabled: true # 让gateway从nacos中获取服务信息
+      httpclient:
+        pool:
+          max-idle-time: PT15S
+      #需要拦截的项目
+      routes:
+      #saas平台
+      - id: cgp-saas-platform
+        uri: lb://cgp-saas-platform
+        predicates:
+        - Path=/cgp-saas-platform/**
+      #saas认证平台
+      - id: cgp-saas-authentication
+        uri: lb://cgp-saas-authentication
+        predicates:
+        - Path=/cgp-saas-authentication/**
+      #计费服务
+      - id: cgp-saas-charge
+        uri: lb://cgp-saas-charge
+        predicates:
+        - Path=/cgp-saas-charge/**
+      #日志服务
+      - id: cgp-saas-logs
+        uri: lb://cgp-saas-logs
+        predicates:
+        - Path=/cgp-saas-logs/**
+      #充值服务
+      - id: cgp-saas-recharge
+        uri: lb://cgp-saas-recharge
+        predicates:
+        - Path=/cgp-saas-recharge/**
+      #调度任务服务
+      - id: cgp-saas-schedulejob
+        uri: lb://cgp-saas-schedulejob
+        predicates:
+        - Path=/cgp-saas-schedulejob/**
+      #message消息服务
+      - id: cgp-saas-message
+        uri: lb://cgp-saas-message
+        predicates:
+        - Path=/cgp-saas-message/**
+      #saas后台
+      - id: cgp-saas-admin
+        uri: lb://cgp-saas-admin
+        predicates:
+        - Path=/cgp-saas-admin/**
+
+#日志
+logging:
+  level:
+    com.ydw.gateway: debug
+
+feign:
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+
+#直接开放的api
+cgp:
+  openUrls:
+  - /cgp-saas-authentication/login/login/code
+  - /cgp-saas-authentication/login/regist/*
+  - /cgp-saas-authentication/qq/*
+  - /cgp-saas-authentication/wechat/*
+  - /cgp-saas-authentication/login/loginUser
+  - /cgp-saas-authentication/login/testLogin
+  - /cgp-saas-authentication/login/getTokenByIdentification
+  - /cgp-saas-authentication/login/autoLogin
+  - /cgp-saas-authentication/login/preregist/phone
+  - /cgp-saas-recharge/pay/alipayNotify
+  - /cgp-saas-recharge/pay/wxpayNotify
+  - /cgp-saas-message/ws/**
+  - /cgp-saas-platform/connect/connectCallback
+  - /cgp-saas-platform/rentalNum/dadagameReturnNumNotice
+  - /cgp-saas-platform/tag/getAppListByTag
+  - /cgp-saas-platform/tag/new/getAppListByTags
+  - /cgp-saas-platform/tag/getTagList
+  - /cgp-saas-platform/tag/androidTags
+  - /cgp-saas-platform/tag/getTags
+  - /cgp-saas-platform/banner/**
+  - /cgp-saas-platform/gameGroup/**
+  - /cgp-saas-platform/qq/**
+  - /cgp-saas-platform/record/**
+  - /cgp-saas-platform/bitRate/**
+  - /cgp-saas-platform/tagType/**
+  - /cgp-saas-platform/faq/**
+  - /cgp-saas-platform/client/getUpgradeFile
+  - /cgp-saas-platform/netBarInfo/getNetBarList
+  - /cgp-saas-platform/netBarInfo/getAllNetBarList
+  - /cgp-saas-platform/netBarInfo/getAllNetBarStatus
+  - /cgp-saas-platform/netBarInfo/getNetBarStatus
+  - /cgp-saas-platform/netBarInfo/getNetBarListInfo
+  - /cgp-saas-platform/netBarInfo/**
+  - /cgp-saas-admin/netBarInfo/getNetBarList
+  - /cgp-saas-admin/netBarInfo/getMatchStation
+  - /cgp-saas-admin/netBarInfo/getBaseStation
+  - /cgp-saas-admin/netBarInfo/getAllNetBarList
+  - /cgp-saas-admin/netBarInfo/**
+  - /cgp-saas-admin/dailyReport/getRetainedRate
+  - /cgp-saas-platform/event/**
+  - /cgp-saas-platform/app/getAppInfo
+  - /cgp-saas-platform/tag/getRecommendAppByTag
+  - /cgp-saas-admin/netBarInfo/getNetbarApps
+  - /cgp-saas-admin/userInfo/getNewRegisterByEnterprise
+  - /cgp-saas-admin/userInfo/getNewRegisterCountByEnterprise
+  - /cgp-saas-admin/userInfo/getOnlineListByEnterprise
+  - /cgp-saas-admin/userInfo/getRechargeListByEnterprise
+  - /cgp-saas-admin/userInfo/getRechargeCountByEnterprise
+  - /cgp-saas-admin/userInfo/getChannelBalanceByEnterprise
+  - /cgp-saas-admin/userInfo/applyWithdrawByEnterprise
+  - /cgp-saas-admin/userInfo/getWithdrawRecordByEnterprise
+  - /cgp-saas-admin/userInfo/getUserPayByEnterprise
+  - /cgp-saas-admin/userInfo/bindBalancePayByEnterprise
+  - /cgp-saas-platform/appComment/getCommentList
+  - /cgp-saas-authentication/login/getCheckCode
+  - /cgp-saas-authentication/login/checkCode

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbFilesMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbFiles">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="size" property="size"/>
+        <result column="file_server_path" property="fileServerPath"/>
+        <result column="file_client_path" property="fileClientPath"/>
+        <result column="identification" property="identification"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.ydw.user.model.vo.FileVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="size" property="size"/>
+        <result column="file_server_path" property="fileServerPath"/>
+        <result column="file_client_path" property="fileClientPath"/>
+        <result column="identification" property="identification"/>
+        <result column="valid" property="valid"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="user_name" property="userName"/>
+    </resultMap>
+
+    <select id="getFileList" resultMap="VoResultMap">
+        SELECT tf.*,tui.enterprise_name as enterprise_name FROM tb_files tf ,tb_user_info tui
+        WHERE tf.valid=true
+        and tui.identification=tf.identification
+        <if test="name!=null">
+            and tf.`name` = #{name}
+        </if>
+        <if test="size!=null">
+            and tf.`size` = #{size}
+        </if>
+        <if test="fileServerPath!=null">
+            and tf.file_server_path = #{fileServerPath}
+        </if>
+        <if test="fileClientPath!=null">
+            and tf.file_client_path = #{fileClientPath}
+        </if>
+        <if test="identification!=null">
+            and tf.identification = #{identification}
+        </if>
+        <if test="status!=null">
+        and tf.status = #{status}
+        </if>
+        <if test="search!=null">
+
+            and   tf.`name`  LIKE CONCAT('%', #{search}, '%')
+        </if>
+        order  by  tf.create_time DESC
+
+    </select>
+
+</mapper>

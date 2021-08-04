@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.open.dao.TbUserAppsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.open.model.db.TbUserApps">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="package_name" property="packageName"/>
+        <result column="package_file_name" property="packageFileName"/>
+        <result column="size" property="size"/>
+        <result column="real_size" property="realSize"/>
+        <result column="access_id" property="accessId"/>
+        <result column="type" property="type"/>
+        <result column="path" property="path"/>
+        <result column="description" property="description"/>
+        <result column="account_path" property="accountPath"/>
+        <result column="save_path" property="savePath"/>
+        <result column="start_shell" property="startShell"/>
+        <result column="close_shell" property="closeShell"/>
+        <result column="strategy_id" property="strategyId"/>
+        <result column="upload_time" property="uploadTime"/>
+        <result column="identification" property="identification"/>
+        <result column="status" property="status"/>
+        <result column="result_desc" property="resultDesc"/>
+        <result column="approval_id" property="approvalId"/>
+        <result column="approval_time" property="approvalTime"/>
+        <result column="delete_id" property="deleteId"/>
+        <result column="delete_time" property="deleteTime"/>
+        <result column="valid" property="valid"/>
+        <result column="sch_status" property="schStatus"/>
+        <result column="sch_install" property="schInstall"/>
+        <result column="install_max_number" property="installMaxNumber" />
+        <result column="screen" property="screen"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="pc_strategy_id" property="pcStrategyId"/>
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.ydw.open.model.vo.AppVO">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="size" property="size" />
+        <result column="real_size" property="realSize" />
+        <result column="access_id" property="accessId" />
+        <result column="type" property="type" />
+        <result column="path" property="path" />
+        <result column="description" property="description" />
+        <result column="save_path" property="savePath" />
+        <result column="close_shell" property="closeShell" />
+        <result column="strategy_id" property="strategyId" />
+        <result column="upload_time" property="uploadTime" />
+        <result column="user_id" property="userId" />
+        <result column="status" property="status" />
+        <result column="result_desc" property="resultDesc" />
+        <result column="identification" property="identification"/>
+        <result column="approval_id" property="approvalId" />
+        <result column="approval_time" property="approvalTime" />
+        <result column="delete_id" property="deleteId" />
+        <result column="delete_time" property="deleteTime" />
+        <result column="package_name" property="packageName" />
+        <result column="package_file_name" property="packageFileName" />
+        <result column="account_path" property="accountPath" />
+        <result column="start_shell" property="startShell" />
+        <result column="enterprise_name" property="enterpriseName" />
+        <result column="strategy_name" property="strategyName" />
+        <result column="valid" property="valid" />
+        <result column="sch_status" property="schStatus" />
+        <result column="sch_install" property="schInstall" />
+        <result column="install_max_number" property="installMaxNumber" />
+        <result column="screen" property="screen"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="pc_strategy_id" property="pcStrategyId"/>
+    </resultMap>
+
+    <resultMap id="AppTagVO" type="com.ydw.open.model.vo.AppTagVO"></resultMap>
+    <select id="getInstallApps" resultMap="VoResultMap">
+      SELECT
+	tua.*,
+	tui.enterprise_name AS enterprise_name
+FROM
+	tb_devices td,
+	tb_user_apps tua,
+	tb_device_apps tda,
+	tb_user_info tui
+WHERE
+	td.id = #{id}
+
+	AND td.id = tda.device_id
+	AND tda.app_id = tua.id
+	AND tda.valid = TRUE
+	AND tui.identification = tua.identification
+	AND tua.valid = TRUE
+
+    </select>
+
+    <select id="getUnInstallApps" resultMap="VoResultMap">
+
+		SELECT
+		c.*,
+		tui.enterprise_name AS enterprise_name
+		FROM
+			(
+			SELECT
+				tua.*
+			FROM
+				tb_user_apps tua,
+				tb_devices td,
+				tb_device_base tdb
+			WHERE
+				(
+				SELECT
+					count(*)
+				FROM
+					(
+					SELECT
+						tua.*,
+						tui.enterprise_name AS enterprise_name
+					FROM
+						tb_devices td,
+						tb_device_base tdb,
+						tb_user_apps tua,
+						tb_device_apps tda,
+						tb_user_info tui
+					WHERE
+						td.base_id = tdb.id
+						AND td.id = #{id}
+						AND td.id = tda.device_id
+						AND tda.app_id = tua.id
+						AND tda.valid = TRUE
+						AND tua.identification = tui.identification
+						AND tua.valid = TRUE
+						AND tua.type = tdb.type
+					) B
+				WHERE
+					tua.id = B.id
+				) = 0
+				AND tua.type = tdb.type
+				AND td.base_id = tdb.id
+				AND td.id = #{id}
+			) c,
+			tb_user_info tui
+		WHERE
+			c.identification = tui.identification
+			AND c.valid = TRUE
+			AND c.sch_status = TRUE
+
+
+
+    </select>
+
+
+    <select id="getUserAppsVo" resultMap="VoResultMap">
+        SELECT
+        tua.*,
+        tui.enterprise_name AS enterprise_name,
+        tas.`name` AS strategy_name
+        FROM
+        tb_user_apps tua,
+        tb_app_strategy tas,
+        tb_user_info tui
+        WHERE
+        tua.valid = TRUE
+        AND tua.identification = tui.identification
+        AND tua.strategy_id = tas.id
+        <if test="name!=null">
+            and tua.`name` =#{name}
+        </if>
+        <if test="accessId!=null">
+            and tua.access_id=#{accessId}
+        </if>
+        <if test="type!=null">
+            and tua.`type`=#{type}
+        </if>
+        <if test="strategyName!=null">
+            and tas.name=#{strategyName}
+        </if>
+        <if test="identification!=null">
+            and tui.identification=#{identification}
+        </if>
+        <if test="status!=null">
+            and tua.status=#{status}
+        </if>
+        <if test="search!=null">
+            and tua.`name` LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="schStatus!=null">
+            and tua.sch_status=#{schStatus}
+        </if>
+        ORDER BY tua.upload_time DESC
+    </select>
+
+
+
+
+<select id="getWebApps" resultMap="AppTagVO">
+SELECT
+	tua.id AS app_id,
+	tua.`name` AS app_name ,tua.description AS description,tua.type as type, tua.upload_time as uploadTime
+FROM
+	tb_user_apps tua
+WHERE
+	tua.valid = TRUE   and tua.sch_status=true and id!='6666675873662606842'
+    <if test="search!=null">
+        and tua.name LIKE CONCAT('%', #{search}, '%')
+    </if>
+        </select>
+
+    <select id="getAppIdBySearch" resultType="String">
+        SELECT tua.id from tb_user_apps tua WHERE tua.name LIKE CONCAT('%', #{search}, '%')
+    </select>
+
+    <select id="getAppListByTag" resultType="String">
+      SELECT
+	t1.*
+FROM
+	tb_user_apps t1,
+	(
+		SELECT
+			t.app_id,
+			count(t.tag_id) tagnum
+		FROM
+			tb_app_tag t
+		WHERE
+
+			t.tag_id IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and t.valid= true
+		GROUP BY
+			t.app_id
+	) t2
+WHERE
+	t1.id = t2.app_id
+        and t1.sch_status=true
+        <if test="search!=null">
+            and   t1.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+
+AND t2.tagnum = #{size};
+    </select>
+
+
+    <select id="getGameAppList" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM
+        tb_user_apps tua
+        LEFT JOIN ( SELECT * FROM tb_user_apps_related WHERE valid != 2 AND enterprise_id = #{id} ) tar ON tua.id = tar.app_id
+        WHERE
+        tar.app_id IS NULL
+        AND tua.valid = TRUE
+        AND tua.sch_status = TRUE
+
+        <if test="id!=null">
+
+        </if>
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.ClusterSignalMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.ClusterSignal">
+        <id column="id" property="id" />
+        <result column="cluster_id" property="clusterId" />
+        <result column="signal_server" property="signalServer" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <resultMap id="ClusterBindVO" type="com.ydw.user.model.vo.ClusterBindVO"></resultMap>
+    <select id="getBySignalServer" resultMap="BaseResultMap">
+      select * from cluster_signal where signal_server=#{id}  and  valid =true
+    </select>
+    <select id="getByClusterId"  resultMap="BaseResultMap">
+      SELECT * from cluster_signal where  cluster_id= #{id}
+    </select>
+
+    <select id="bindList" resultMap="ClusterBindVO">
+SELECT
+	tc.name,tc.id
+FROM
+	cluster_signal cs,
+	tb_clusters tc
+WHERE
+	tc.id = cs.cluster_id
+	AND cs.signal_server =#{id}
+	and cs.valid =true
+
+    </select>
+
+    <select id="unbindList" resultMap="ClusterBindVO">
+
+	SELECT
+	A.NAME,
+	A.id
+FROM
+	tb_clusters A
+WHERE
+	NOT EXISTS ( SELECT 1 FROM cluster_signal B WHERE A.ID = B.cluster_id and B.valid =true )
+	AND A.type =1
+    </select>
+</mapper>

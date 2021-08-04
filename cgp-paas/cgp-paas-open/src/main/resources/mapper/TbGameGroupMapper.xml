@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.open.dao.TbGameGroupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.open.model.db.TbGameGroup">
+        <id column="id" property="id"/>
+        <result column="gamegroup_id" property="gamegroupId"/>
+        <result column="game_id" property="gameId"/>
+        <result column="game_order" property="gameOrder"/>
+        <result column="weight1" property="weight1"/>
+        <result column="weight2" property="weight2"/>
+        <result column="weight3" property="weight3"/>
+    </resultMap>
+    <resultMap id="GameGroupAppVO" type="com.ydw.open.model.vo.GameGroupAppVO">
+
+    </resultMap>
+    <select id="getAppsByGameGroupId" resultMap="GameGroupAppVO">
+        SELECT
+        tgg.id as id,
+	tgg.game_order AS gameOrder,
+	tgg.weight1 ,
+	tgg.weight2 ,
+	tgg.weight3 ,
+	tua.id AS appId,
+	tua.NAME AS appName,
+	tua.description AS description
+        from tb_game_group tgg ,tb_user_apps tua   WHERE  tua.id = tgg.game_id and  tgg.gamegroup_id=  #{id}  ORDER BY tgg.game_order ASC
+    </select>
+
+    <resultMap id="GameAppVO" type="com.ydw.open.model.vo.GameAppVO"></resultMap>
+
+    <select id="getGameList" resultMap="GameAppVO">
+    SELECT  tua.id AS appId,
+	tua.NAME AS appName
+	FROM tb_user_apps tua WHERE tua.sch_status =true and tua.valid =true;
+    </select>
+    <select id="getByGameGroupId" resultMap="BaseResultMap">
+        	   select  *from   tb_game_group where gamegroup_id = #{id}
+    </select>
+</mapper>

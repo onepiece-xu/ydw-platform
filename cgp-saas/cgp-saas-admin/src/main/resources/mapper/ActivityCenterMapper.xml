@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.ActivityCenterMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.ActivityCenter">
+        <id column="id" property="id" />
+        <result column="pic_path" property="picPath" />
+        <result column="access_path" property="accessPath" />
+        <result column="type" property="type" />
+    </resultMap>
+    <resultMap id="ActivityCenterVO" type="com.ydw.admin.model.vo.ActivityCenterVO"></resultMap>
+    <select id="getList" resultMap="ActivityCenterVO">
+      SELECT
+	a.id,
+	a.pic_path,
+	a.access_path,
+	a.order_num,
+	a.type,
+	a.valid,
+	tc.NAME AS couponName,
+	tc.id AS couponId
+FROM
+	activity_center a,
+	activity_coupon ac,
+	tb_coupon_card tc
+WHERE
+	a.id = ac.activity_id
+	AND a.valid = 1
+	AND ac.coupon_id = tc.id
+    </select>
+</mapper>

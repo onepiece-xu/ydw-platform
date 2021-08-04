@@ -1,0 +1,33 @@
+
+#中心节点api域名或者ip+port
+centre:
+  domain: http://apidev.yidianwan.cn
+
+#本节点id
+clusterId: 6669044782541807389
+
+#ftp配置
+ftp:
+  address: 121.36.97.240
+  port: 21
+  userName: ydw
+  passWord: Yidianwan!23
+
+stream:
+  #扫码周期（秒）
+  scanPeriod: 60
+  #掉线次数判断
+  scanOfflineNumJudge: 3
+
+system:
+  #扫码周期（秒）
+  scanPeriod: 60
+  #掉线次数判断
+  scanOfflineNumJudge: 3
+
+api:
+  list:
+  - clusterId: 6702129097492108784
+    rebootUrl: https://admin-console-nmlt.doulong.cn/api/qjc/user/vm/restart
+  - clusterId: 6789751166995329725
+    rebootUrl: https://admin-console-fs.doulong.cn/api/qjc/user/vm/restart

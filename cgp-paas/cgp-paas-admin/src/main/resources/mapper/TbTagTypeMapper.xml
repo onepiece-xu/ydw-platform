@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbTagTypeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbTagType">
+        <id column="id" property="id" />
+        <result column="tag_type_name" property="tagTypeName" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <select id="getTagTypeList" resultMap="BaseResultMap">
+        SELECT * FROM `tb_tag_type` ttt WHERE valid=1
+        <if test="search!=null">
+            and  ttt.tag_type_name LIKE CONCAT('%', #{search}, '%')
+        </if>
+    </select>
+</mapper>

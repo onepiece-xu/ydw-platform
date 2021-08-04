@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.AreaMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.Area">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="description" property="description" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    <resultMap id="ClusterBindVO" type="com.ydw.user.model.vo.ClusterBindVO">
+		<id column="id" property="id" />
+		<id column="name" property="name" />
+	</resultMap>
+
+    <select id="getUnbindList" resultMap="ClusterBindVO">
+
+SELECT
+	B.id,B.name
+FROM
+	( SELECT id, name FROM tb_clusters WHERE valid = 1 ) B
+WHERE
+	(
+	SELECT
+		count( 1 )
+	FROM
+		(
+		SELECT
+			tc.NAME,
+			tc.id
+		FROM
+			area_cluster ac,
+			tb_clusters tc
+		WHERE
+			tc.valid=1
+			and
+			ac.area_id = #{id}
+			AND tc.id = ac.cluster_id
+		) A
+	WHERE
+		A.ID = B.ID
+	) = 0
+
+    </select>
+
+    <select id="getBindList" resultMap="ClusterBindVO">
+      SELECT
+	tc.name as name ,
+	tc.id as id
+FROM
+	area_cluster ac,
+	tb_clusters tc
+WHERE
+    tc.valid=1 	and
+	ac.area_id = #{id}
+	AND tc.id = ac.cluster_id
+    </select>
+</mapper>

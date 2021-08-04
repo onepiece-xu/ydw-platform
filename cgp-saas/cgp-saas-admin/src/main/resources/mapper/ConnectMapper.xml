@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.ConnectMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.Connect">
+        <id column="id" property="id" />
+        <result column="device_id" property="deviceId" />
+        <result column="device_name" property="deviceName" />
+        <result column="app_id" property="appId" />
+        <result column="user_id" property="userId" />
+        <result column="from_ip" property="fromIp" />
+        <result column="begin_time" property="beginTime" />
+        <result column="end_time" property="endTime" />
+        <result column="abnormal_time" property="abnormalTime" />
+        <result column="total_time" property="totalTime" />
+        <result column="client" property="client" />
+        <result column="type" property="type" />
+        <result column="valid" property="valid" />
+    </resultMap>
+    <select id="chargeSummary" resultType="com.ydw.admin.model.vo.ChargeSummaryVO">
+        select count(1) connectCount,sum(total_time/60) connectTime from tb_connect where valid = 1
+        <if test="search != null">
+            and user_id in (select id from user_info where nickname like concat('%',#{search},'%'))
+        </if>
+    </select>
+
+</mapper>

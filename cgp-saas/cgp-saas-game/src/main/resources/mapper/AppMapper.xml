@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.AppMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.game.model.db.App">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="access_id" property="accessId" />
+        <result column="type" property="type" />
+        <result column="description" property="description" />
+        <result column="order_num" property="orderNum" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <resultMap id="AppTagVO" type="com.ydw.game.model.vo.AppTagVO"></resultMap>
+    <select id="getWebApps" resultMap="AppTagVO">
+        SELECT
+        tua.id AS app_id,
+        tua.`name` AS app_name ,tua.description AS description,tua.type as type, tua.create_time as createTime
+        FROM
+        tb_app tua
+        WHERE
+        1=1
+        <if test="search!=null">
+            and tua.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+    </select>
+
+
+    <select id="getAppListByTag" resultType="String">
+        SELECT
+        t1.*
+        FROM
+        tb_app t1,
+        (
+        SELECT
+        t.app_id,
+        count(t.tag_id) tagnum
+        FROM
+        app_tag t
+        WHERE
+
+        t.tag_id IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and t.valid= true
+        GROUP BY
+        t.app_id
+        ) t2
+        WHERE
+        t1.id = t2.app_id
+
+        <if test="search!=null">
+            and   t1.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+
+        AND t2.tagnum = #{size};
+    </select>
+</mapper>

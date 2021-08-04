@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.open.dao.TbGamegroupInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.open.model.db.TbGamegroupInfo">
+        <id column="gamegroup_id" property="gamegroupId" />
+        <result column="gamegroup_name" property="gamegroupName" />
+        <result column="gamegroup_pic" property="gamegroupPic" />
+        <result column="gamegroup_size" property="gamegroupSize" />
+        <result column="gamegroup_description" property="gamegroupDescription" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+    <select id="getGameGroupList" resultMap="BaseResultMap">
+        SELECT *from tb_gamegroup_info WHERE valid =true
+    </select>
+</mapper>

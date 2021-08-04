@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.LimitedMissionCouponMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.LimitedMissionCoupon">
+        <id column="id" property="id" />
+        <result column="mission_id" property="missionId" />
+        <result column="coupon_id" property="couponId" />
+    </resultMap>
+    <resultMap id="CouponCard" type="com.ydw.platform.model.db.CouponCard"></resultMap>
+    <select id="getCouponList" resultMap="CouponCard">
+SELECT tcc.* from limited_mission_coupon lmc ,tb_coupon_card tcc WHERE  tcc.id =lmc.coupon_id and lmc.mission_id= #{id}
+    </select>
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.admin.dao.VirtualkeyConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.admin.model.db.VirtualkeyConfig">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="content" property="content" />
+        <result column="remark" property="remark" />
+        <result column="user_id" property="userId" />
+        <result column="create_type" property="createType" />
+        <result column="app_type" property="appType" />
+        <result column="key_type" property="keyType" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <select id="getVirtualkeyConfigs" resultType="com.ydw.admin.model.vo.VirtualkeyConfigVO">
+        SELECT
+            *
+        FROM
+            (
+                SELECT
+                    vc.id,
+                    vc. NAME,
+                    vc.content,
+                    vc.remark,
+                    vc.create_type createType,
+                    vc.app_type appType,
+                    vc.key_type keyType,
+                    vc.create_time createTime,
+                    vc.update_time updateTime,
+                    vr.userId,
+                    vr.userName,
+                    vr.appId,
+                    vr.appName
+                FROM
+                    virtualkey_config vc
+                LEFT JOIN (
+                    SELECT
+                        v.config_id,
+                        group_concat(DISTINCT v.app_id) appId,
+                        group_concat(DISTINCT a. NAME) appName,
+                        group_concat(DISTINCT v.user_id) userId,
+                        group_concat(DISTINCT ui.nickname) userName
+                    FROM
+                        virtualkey_relation v
+                    LEFT JOIN app a ON v.app_id = a.id
+                    LEFT JOIN user_info ui ON v.user_id = ui.id
+                    GROUP BY
+                        v.config_id
+                ) vr ON vc.id = vr.config_id
+                WHERE
+                    vc.user_id = 'admin'
+                <if test="search != null">
+                    and vc.name like concat('%',#{search},'%')
+                </if>
+                UNION
+                    SELECT
+                        vc.id,
+                        vc. NAME,
+                        vc.content,
+                        vc.remark,
+                        vc.create_type createType,
+                        vc.app_type appType,
+                        vc.key_type keyType,
+                        vc.create_time createTime,
+                        vc.update_time updateTime,
+                        ui.Id userId,
+                        ui.nickname userName,
+                        a.Id appId,
+                        a. NAME appName
+                    FROM
+                        virtualkey_config vc
+                    LEFT JOIN app a ON vc.app_id = a.id
+                    LEFT JOIN user_info ui ON vc.user_id = ui.id
+                    WHERE
+                        vc.user_id != 'admin'
+                    <if test="search != null">
+                        and vc.name like concat('%',#{search},'%')
+                    </if>
+            ) b
+        ORDER BY
+            b.createTime DESC
+    </select>
+
+</mapper>

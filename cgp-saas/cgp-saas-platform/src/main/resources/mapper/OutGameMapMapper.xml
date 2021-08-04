@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.platform.dao.OutGameMapMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.platform.model.db.OutGameMap">
+        <result column="id" property="id" />
+        <result column="out_game_id" property="outGameId" />
+        <result column="self_game_id" property="selfGameId" />
+        <result column="type" property="type" />
+        <result column="valid" property="valid" />
+    </resultMap>
+
+</mapper>

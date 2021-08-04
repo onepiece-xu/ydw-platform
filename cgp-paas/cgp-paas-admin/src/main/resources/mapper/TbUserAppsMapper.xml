@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.user.dao.TbUserAppsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.user.model.db.TbUserApps">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="package_name" property="packageName"/>
+        <result column="size" property="size"/>
+        <result column="real_size" property="realSize"/>
+        <result column="access_id" property="accessId"/>
+        <result column="type" property="type"/>
+        <result column="description" property="description"/>
+        <result column="strategy_id" property="strategyId"/>
+        <result column="upload_time" property="uploadTime"/>
+        <result column="identification" property="identification"/>
+        <result column="status" property="status"/>
+        <result column="result_desc" property="resultDesc"/>
+        <result column="approval_id" property="approvalId"/>
+        <result column="approval_time" property="approvalTime"/>
+        <result column="delete_id" property="deleteId"/>
+        <result column="delete_time" property="deleteTime"/>
+        <result column="valid" property="valid"/>
+        <result column="sch_status" property="schStatus"/>
+        <result column="sch_install" property="schInstall"/>
+        <result column="install_max_number" property="installMaxNumber" />
+        <result column="screen" property="screen"/>
+        <result column="publish_time" property="publishTime"/>
+        <result column="pc_strategy_id" property="pcStrategyId"/>
+    </resultMap>
+
+    <resultMap id="AppPictures" type="com.ydw.user.model.db.AppPictures"></resultMap>
+
+
+    <resultMap id="VoResultMap" type="com.ydw.user.model.vo.AppVO"></resultMap>
+    <resultMap id="DemoApps" type="com.ydw.user.model.vo.DemoApps"></resultMap>
+    <resultMap id="AppTagVO" type="com.ydw.user.model.vo.AppTagVO"></resultMap>
+    <select id="getInstallApps" resultMap="VoResultMap">
+SELECT
+	tua.*,
+	tui.enterprise_name AS enterprise_name
+FROM
+	tb_devices td,
+	tb_user_apps tua,
+	tb_device_apps tda,
+	tb_user_info tui
+WHERE
+	td.id = #{id}
+
+	AND td.id = tda.device_id
+	AND tda.app_id = tua.id
+	AND tda.valid = TRUE
+	AND tui.identification = tua.identification
+	AND tua.valid = TRUE
+    </select>
+
+    <select id="getUnInstallApps" resultMap="VoResultMap">
+SELECT
+		c.*,
+		tui.enterprise_name AS enterprise_name
+		FROM
+			(
+			SELECT
+				tua.*
+			FROM
+				tb_user_apps tua,
+				tb_devices td,
+				tb_device_base tdb
+			WHERE
+				(
+				SELECT
+					count(*)
+				FROM
+					(
+					SELECT
+						tua.*,
+						tui.enterprise_name AS enterprise_name
+					FROM
+						tb_devices td,
+						tb_device_base tdb,
+						tb_user_apps tua,
+						tb_device_apps tda,
+						tb_user_info tui
+					WHERE
+						td.base_id = tdb.id
+						AND td.id =  #{id}
+						AND td.id = tda.device_id
+						AND tda.app_id = tua.id
+						AND tda.valid = TRUE
+						AND tua.identification = tui.identification
+						AND tua.valid = TRUE
+						AND tua.type = tdb.type
+					) B
+				WHERE
+					tua.id = B.id
+				) = 0
+				AND tua.type = tdb.type
+				AND td.base_id = tdb.id
+				AND td.id = #{id}
+			) c,
+			tb_user_info tui
+		WHERE
+			c.identification = tui.identification
+			AND c.valid = TRUE
+			AND c.sch_status = TRUE
+
+
+
+    </select>
+
+
+    <select id="getUserAppsVo" resultMap="VoResultMap">
+        SELECT
+        A.*,
+        ap.big_pic,
+        ap.small_pic,
+        ap.logo_pic,
+        ap.mid_pic
+        FROM
+        (
+        SELECT
+        tua.*,
+        tui.enterprise_name AS enterprise_name,
+        tas.`name` AS strategy_name
+        FROM
+        tb_user_apps tua,
+        tb_app_strategy tas,
+        tb_user_info tui
+        WHERE
+        tua.valid = TRUE
+        AND tua.identification = tui.identification
+        AND tua.strategy_id = tas.id
+        ) A
+        LEFT JOIN tb_app_pictures ap ON ap.app_id = A.id
+        AND ap.valid = 1
+        WHERE
+        1=1
+        <if test="name!=null">
+            and A.name =#{name}
+        </if>
+        <if test="accessId!=null">
+            and A.access_id=#{accessId}
+        </if>
+        <if test="type!=null">
+            and A.`type`=#{type}
+        </if>
+        <if test="strategyName!=null">
+            and A.strategy_name=#{strategyName}
+        </if>
+        <if test="identification!=null">
+            and A.identification=#{identification}
+        </if>
+        <if test="status!=null">
+            and A.status=#{status}
+        </if>
+        <if test="search!=null">
+            and A.`name` LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="schStatus!=null">
+            and A.sch_status=#{schStatus}
+        </if>
+
+        ORDER BY
+        A.upload_time DESC
+
+
+
+
+
+    </select>
+
+
+    <select id="getApps" resultMap="DemoApps">
+      	SELECT tua.name as app_name ,tua.id  as app_id FROM tb_user_apps tua where tua.valid =true
+       </select>
+    <resultMap id="DemoAppVO" type="com.ydw.user.model.vo.DemoAppVO">
+    </resultMap>
+
+    <select id="getDemoAppsList" resultMap="DemoAppVO">
+        SELECT
+        td.order_number AS order_number,
+        td.type as type ,
+        tua.id AS app_id,
+        tua.identification as identification,
+        tua.`name` AS app_name ,
+        tua.type as app_type
+        FROM
+        tb_user_apps tua,
+        tb_demo td
+        WHERE
+        td.app_id = tua.id
+        AND td.valid = TRUE
+        AND tua.valid = TRUE
+        <if test="type!=null">
+            and td.type=#{type}
+        </if>
+	ORDER BY td.order_number ASC
+       </select>
+
+<select id="getWebApps" resultMap="AppTagVO">
+SELECT
+	tua.id AS app_id,
+	tua.`name` AS app_name ,tua.description AS description,tua.type as type, tua.upload_time as uploadTime
+FROM
+	tb_user_apps tua
+WHERE
+	tua.valid = TRUE   and tua.sch_status=true and id!='6666675873662606842'
+    <if test="search!=null">
+        and tua.name LIKE CONCAT('%', #{search}, '%')
+    </if>
+        </select>
+
+    <select id="getAppIdBySearch" resultType="String">
+        SELECT tua.id from tb_user_apps tua WHERE tua.name LIKE CONCAT('%', #{search}, '%')
+    </select>
+
+    <select id="getAppListByTag" resultType="String">
+      SELECT
+	t1.*
+FROM
+	tb_user_apps t1,
+	(
+		SELECT
+			t.app_id,
+			count(t.tag_id) tagnum
+		FROM
+			tb_app_tag t
+		WHERE
+
+			t.tag_id IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and t.valid= true
+		GROUP BY
+			t.app_id
+	) t2
+WHERE
+	t1.id = t2.app_id
+        and t1.sch_status=true
+        <if test="search!=null">
+            and   t1.name LIKE CONCAT('%', #{search}, '%')
+        </if>
+
+AND t2.tagnum = #{size};
+    </select>
+
+
+    <select id="getByStrategyId" resultMap="BaseResultMap">
+    SELECT
+	*
+FROM
+	`tb_user_apps`
+WHERE
+	strategy_id = #{id}
+	OR pc_strategy_id = #{id}
+    </select>
+
+
+    <select id="getAppPictures" resultMap="AppPictures">
+        	SELECT *from tb_app_pictures WHERE valid = 1
+    </select>
+
+    <select id="getUserAppInfo" resultType="com.ydw.user.model.vo.AppInfo">
+        SELECT
+            t1.id appId,
+            t1.NAME appName,
+            t1.package_name packageName,
+            t3.package_file_name packageFileName,
+            t3.package_file_path packageFilePath,
+            t3.account_path accountPath,
+            t3.save_path savePath,
+            t3.start_shell startShell,
+            t3.close_shell closeShell,
+            t1.size size,
+            t1.real_size realSize,
+            t1.type type,
+            t1.description description,
+            t1.strategy_id strategyId,
+            t1.pc_strategy_id pcStrategyId,
+            t1.identification identification,
+            t1.upload_time uploadTime,
+            t1.STATUS STATUS,
+            t1.valid valid,
+            t1.sch_status schStatus,
+            t1.sch_install schInstall,
+            t1.install_max_number installMaxNumber,
+            t1.install_current_number installCurrentNumber,
+            t1.screen screen,
+            t2.big_pic bigPic,
+            t2.mid_pic midPic,
+            t2.small_pic smallPic,
+            t2.logo_pic logoPic
+        FROM
+            tb_user_apps t1
+        LEFT JOIN tb_cluster_app_config t3 ON t1.id = t3.app_id
+        LEFT JOIN tb_app_pictures t2 ON t1.id = t2.app_id
+        WHERE
+            t1.id = #{appId}
+            and t3.cluster_id = #{clusterId}
+    </select>
+</mapper>

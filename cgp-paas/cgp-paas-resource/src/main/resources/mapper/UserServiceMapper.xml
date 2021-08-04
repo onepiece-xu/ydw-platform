@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ydw.resource.dao.UserServiceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.ydw.resource.model.db.UserService">
+        <id column="id" property="id" />
+        <result column="identification" property="identification" />
+        <result column="service_id" property="serviceId" />
+        <result column="connect_callback_url" property="connectCallbackUrl" />
+    </resultMap>
+
+</mapper>
